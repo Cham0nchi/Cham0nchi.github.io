@@ -41,7 +41,7 @@ jobs:
           hash_pattern = re.compile(r'(?:%20|\s+)[0-9a-f]{32}', re.IGNORECASE)
 
           # ==========================================
-          # 🎨 記事全体の共通テンプレートHTML（ミニサムネイル付きリンク対応）
+          # 🎨 記事全体の共通テンプレートHTML
           # ==========================================
           def render_template(title, body_html):
               return f'''<!DOCTYPE html>
@@ -120,6 +120,37 @@ jobs:
                       flex-grow: 1;
                   }}
 
+                  /* 💻 コードブロックの折りたたみ（アコーディオン）デザイン */
+                  details.code-fold {{
+                      background: #f6f8fa;
+                      border: 1px solid #d0d7de;
+                      border-radius: 6px;
+                      margin: 1.5em 0;
+                      padding: 0;
+                      overflow: hidden;
+                  }}
+                  details.code-fold summary {{
+                      padding: 10px 14px;
+                      font-weight: 600;
+                      cursor: pointer;
+                      background: #eaeef2;
+                      color: #24292e;
+                      user-select: none;
+                  }}
+                  details.code-fold summary:hover {{
+                      background: #dde3ea;
+                  }}
+                  details.code-fold pre {{
+                      margin: 0;
+                      padding: 14px;
+                      overflow-x: auto;
+                      background: #f6f8fa;
+                      font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+                      font-size: 0.85em;
+                      line-height: 1.45;
+                      color: #24292e;
+                  }}
+
                   .embed-youtube {{
                       position: relative;
                       width: 100%;
@@ -192,11 +223,39 @@ jobs:
           '''
 
           # ==========================================
-          # 🛠️ リンクカード整形・マップ・YouTube変換
+          # 🛠️ コードブロックの折りたたみ化・リンク整形・マップ・YouTube変換
           # ==========================================
           def transform_content(html_content):
               soup = BeautifulSoup(html_content, 'html.parser')
 
+              # 0. Notionのコードブロック（<pre><code>）を折りたたみ（<details>）に変換
+              for pre_tag in list(soup.find_all('pre')):
+                  # すでに処理済みでなければ
+                  if pre_tag.find_parent('details', class_='code-fold'):
+                      continue
+                  
+                  code_text = pre_tag.get_text()
+                  # コードの最初の1行目などをタイトルにする（長すぎる場合は「Pythonソースコード」など）
+                  first_line = code_text.strip().split('\n')[0]
+                  summary_title = f"💻 ソースコードを表示: {first_line[:30]}..." if len(first_line) > 0 else "💻 ソースコードを表示"
+
+                  details_tag = soup.new_tag('details')
+                  details_tag['class'] = 'code-fold'
+
+                  summary_tag = soup.new_tag('summary')
+                  summary_tag.string = summary_title
+                  details_tag.append(summary_tag)
+
+                  # 元のpreタグをそのまま中に入れる
+                  details_tag.append(pre_tag.extract())
+                  
+                  # ページ内の元の位置に配置
+                  # ※ soup操作でpre_tagの代わりにdetails_tagを挿入
+                  # ここでは単純にプレースホルダーや前後の要素を利用するか、プレースホルダー方式にする
+                  # BeautifulSoupでは replace_with が使えます
+                  pre_tag.replace_with(details_tag)
+
+              # 1. Notionのブックマークブロック（figure.bookmarked-page）の処理
               for bookmark in list(soup.find_all('figure', class_='bookmarked-page')):
                   a_tag = bookmark.find('a', href=True)
                   if a_tag:
@@ -237,6 +296,7 @@ jobs:
                   else:
                       bookmark.decompose()
 
+              # 2. その他の通常のリンクの処理（YouTubeやGoogleマップなど）
               for a_tag in list(soup.find_all('a', href=True)):
                   if not a_tag.parent:
                       continue
@@ -244,6 +304,7 @@ jobs:
                   href = a_tag['href']
                   clean_href = hash_pattern.sub('', href).strip()
 
+                  # YouTube埋め込み
                   yt_match = re.search(r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ \s<]{11})', clean_href)
                   if yt_match:
                       vid = yt_match.group(1)
@@ -258,6 +319,7 @@ jobs:
                           a_tag.replace_with(new_div)
                       continue
 
+                  # Google Maps埋め込み
                   if any(domain in clean_href for domain in ['google.com/maps', 'goo.gl/maps', 'maps.app.goo.gl', 'maps.google.com']):
                       wrapper = soup.new_tag('div')
                       
@@ -364,7 +426,6 @@ jobs:
                   if os.path.isdir(src_item):
                       dst_item = os.path.join(target_date_dir, item)
                       if os.path.exists(dst_item):
-                          # 既存の同名フォルダがある場合は中身を上書き・統合（既存記事を消さない）
                           for sub_root, sub_dirs, sub_files in os.walk(src_item):
                               rel_p = os.path.relpath(sub_root, src_item)
                               target_sub_p = os.path.join(dst_item, rel_p) if rel_p != '.' else dst_item
@@ -379,7 +440,7 @@ jobs:
                   shutil.rmtree(temp_dir)
 
           # ==========================================
-          # 📚 index.html の生成（現在 Posts 内に存在する有効なHTMLファイルだけをスキャンしてリスト化）
+          # 📚 index.html の生成（有効なPostsのみスキャン）
           # ==========================================
           article_data = []
           all_tags = set()
@@ -519,7 +580,7 @@ jobs:
 
           with open('index.html', 'w', encoding='utf-8') as f:
               f.write(index_content)
-          print("Successfully updated index based on active Posts while preserving existing files!")
+          print("Successfully added code block accordion folding!")
           EOF
 
       - name: Commit and push changes
@@ -527,5 +588,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git diff --staged --quiet || git commit -m "Update: sync index with existing Posts and keep safe from full deletion"
+          git diff --staged --quiet || git commit -m "Update: fold Notion code blocks into clean accordions"
           git push
