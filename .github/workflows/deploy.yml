@@ -228,14 +228,12 @@ jobs:
           def transform_content(html_content):
               soup = BeautifulSoup(html_content, 'html.parser')
 
-              # 0. Notionのコードブロック（<pre><code>）を折りたたみ（<details>）に変換
+              # 0. Notionのコードブロック（<pre>）を折りたたみ（<details>）に変換
               for pre_tag in list(soup.find_all('pre')):
-                  # すでに処理済みでなければ
                   if pre_tag.find_parent('details', class_='code-fold'):
                       continue
                   
                   code_text = pre_tag.get_text()
-                  # コードの最初の1行目などをタイトルにする（長すぎる場合は「Pythonソースコード」など）
                   first_line = code_text.strip().split('\n')[0]
                   summary_title = f"💻 ソースコードを表示: {first_line[:30]}..." if len(first_line) > 0 else "💻 ソースコードを表示"
 
@@ -246,13 +244,9 @@ jobs:
                   summary_tag.string = summary_title
                   details_tag.append(summary_tag)
 
-                  # 元のpreタグをそのまま中に入れる
-                  details_tag.append(pre_tag.extract())
-                  
-                  # ページ内の元の位置に配置
-                  # ※ soup操作でpre_tagの代わりにdetails_tagを挿入
-                  # ここでは単純にプレースホルダーや前後の要素を利用するか、プレースホルダー方式にする
-                  # BeautifulSoupでは replace_with が使えます
+                  # extract()を使って安全に切り離してからdetailsに内包し、元の場所を置換
+                  extracted_pre = pre_tag.extract()
+                  details_tag.append(extracted_pre)
                   pre_tag.replace_with(details_tag)
 
               # 1. Notionのブックマークブロック（figure.bookmarked-page）の処理
@@ -580,7 +574,7 @@ jobs:
 
           with open('index.html', 'w', encoding='utf-8') as f:
               f.write(index_content)
-          print("Successfully added code block accordion folding!")
+          print("Successfully updated with bug-free accordion folding!")
           EOF
 
       - name: Commit and push changes
@@ -588,5 +582,5 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git diff --staged --quiet || git commit -m "Update: fold Notion code blocks into clean accordions"
+          git diff --staged --quiet || git commit -m "Fix: correct tag replacement logic for code blocks"
           git push
