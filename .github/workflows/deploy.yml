@@ -1,0 +1,531 @@
+name: Deploy Notion Export & Sync
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip import beautifulsoup4 || pip install beautifulsoup4
+
+      - name: Extract ZIP, update Posts, and generate clean index
+        run: |
+          python - << 'EOF'
+          import os
+          import zipfile
+          import re
+          import shutil
+          from datetime import datetime
+          from bs4 import BeautifulSoup
+
+          posts_dir = 'Posts'
+          os.makedirs(posts_dir, exist_ok=True)
+
+          hash_pattern = re.compile(r'(?:%20|\s+)[0-9a-f]{32}', re.IGNORECASE)
+
+          # ==========================================
+          # 🎨 記事全体の共通テンプレートHTML（ミニサムネイル付きリンク対応）
+          # ==========================================
+          def render_template(title, body_html):
+              return f'''<!DOCTYPE html>
+          <html lang="ja">
+          <head>
+              <meta charset="UTF-8">
+              <title>{title}</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                  body {{
+                      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+                      max-width: 800px;
+                      margin: 40px auto;
+                      padding: 0 20px;
+                      line-height: 1.7;
+                      background-color: #fcfcfc;
+                      color: #333;
+                  }}
+                  .container {{
+                      background: #fff;
+                      padding: 40px;
+                      border-radius: 12px;
+                      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                  }}
+                  h1.page-title {{
+                      font-size: 2rem;
+                      border-bottom: 2px solid #eaeaea;
+                      padding-bottom: 15px;
+                      margin-top: 0;
+                      color: #111;
+                  }}
+                  p {{ margin: 1em 0; }}
+                  
+                  .content img:not(.bookmark-thumb) {{
+                      max-width: 100%;
+                      height: auto;
+                      max-height: 250px;
+                      object-fit: cover;
+                      border-radius: 6px;
+                  }}
+
+                  /* 🔗 サムネイル付きシンプルブックマークリンクのスタイル */
+                  .content .simple-bookmark {{
+                      display: flex;
+                      align-items: center;
+                      gap: 12px;
+                      color: #0969da;
+                      text-decoration: none;
+                      background: #f6f8fa;
+                      padding: 10px 14px;
+                      border-radius: 6px;
+                      border: 1px solid #d0d7de;
+                      margin: 1em 0;
+                      box-sizing: border-box;
+                  }}
+                  .content .simple-bookmark:hover {{
+                      background: #eef2f5;
+                      text-decoration: none;
+                  }}
+                  .content .simple-bookmark:hover .bookmark-title {{
+                      text-decoration: underline;
+                  }}
+                  .bookmark-thumb {{
+                      width: 36px;
+                      height: 36px;
+                      object-fit: cover;
+                      border-radius: 4px;
+                      flex-shrink: 0;
+                      background: #fff;
+                      border: 1px solid #eaeaea;
+                  }}
+                  .bookmark-title {{
+                      font-weight: 600;
+                      font-size: 0.95em;
+                      word-break: break-all;
+                      flex-grow: 1;
+                  }}
+
+                  .embed-youtube {{
+                      position: relative;
+                      width: 100%;
+                      height: 0;
+                      padding-bottom: 56.25%;
+                      margin: 25px 0;
+                      border-radius: 8px;
+                      overflow: hidden;
+                  }}
+                  .embed-youtube iframe {{
+                      position: absolute;
+                      top: 0; left: 0;
+                      width: 100%; height: 100%;
+                      border: 0;
+                  }}
+                  .embed-map {{
+                      width: 100%;
+                      height: 400px;
+                      margin: 25px 0;
+                      border: 1px solid #ccd8e0;
+                      border-radius: 8px;
+                      overflow: hidden;
+                      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                  }}
+                  .map-link {{
+                      text-align: right;
+                      font-size: 0.85em;
+                      margin-top: -15px;
+                      margin-bottom: 25px;
+                  }}
+                  .map-link a {{
+                      color: #1a73e8;
+                      text-decoration: none;
+                  }}
+                  .map-link a:hover {{ text-decoration: underline; }}
+                  .back-link {{
+                      display: inline-block;
+                      margin-bottom: 20px;
+                      color: #666;
+                      text-decoration: none;
+                      font-weight: bold;
+                      font-size: 0.9em;
+                  }}
+                  .back-link:hover {{ color: #000; }}
+                  .content a.article-tag {{
+                      color: #0969da;
+                      background: #eef2f5;
+                      padding: 2px 6px;
+                      border-radius: 4px;
+                      text-decoration: none;
+                      font-size: 0.9em;
+                      font-weight: normal;
+                  }}
+                  .content a.article-tag:hover {{
+                      background: #d0d7de;
+                      text-decoration: underline;
+                  }}
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <a href="../../index.html" class="back-link">← ログ一覧に戻る</a>
+                  <h1 class="page-title">{title}</h1>
+                  <div class="content">
+                      {body_html}
+                  </div>
+              </div>
+          </body>
+          </html>
+          '''
+
+          # ==========================================
+          # 🛠️ リンクカード整形・マップ・YouTube変換
+          # ==========================================
+          def transform_content(html_content):
+              soup = BeautifulSoup(html_content, 'html.parser')
+
+              for bookmark in list(soup.find_all('figure', class_='bookmarked-page')):
+                  a_tag = bookmark.find('a', href=True)
+                  if a_tag:
+                      href = hash_pattern.sub('', a_tag['href']).strip()
+                      
+                      title_text = ""
+                      text_divs = bookmark.find_all(['div', 'p', 'span'])
+                      for td in text_divs:
+                          t = td.get_text(strip=True)
+                          if t and not t.startswith('http') and len(t) > len(title_text):
+                              title_text = t
+                      
+                      if not title_text:
+                          title_text = href
+
+                      img_tag = bookmark.find('img')
+                      thumb_src = ""
+                      if img_tag and img_tag.get('src'):
+                          thumb_src = hash_pattern.sub('', img_tag['src']).strip()
+
+                      new_a = soup.new_tag('a')
+                      new_a['href'] = href
+                      new_a['target'] = '_blank'
+                      new_a['class'] = 'simple-bookmark'
+
+                      if thumb_src:
+                          img_el = soup.new_tag('img')
+                          img_el['src'] = thumb_src
+                          img_el['class'] = 'bookmark-thumb'
+                          new_a.append(img_el)
+
+                      title_span = soup.new_tag('span')
+                      title_span['class'] = 'bookmark-title'
+                      title_span.string = title_text
+                      new_a.append(title_span)
+
+                      bookmark.replace_with(new_a)
+                  else:
+                      bookmark.decompose()
+
+              for a_tag in list(soup.find_all('a', href=True)):
+                  if not a_tag.parent:
+                      continue
+                  
+                  href = a_tag['href']
+                  clean_href = hash_pattern.sub('', href).strip()
+
+                  yt_match = re.search(r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ \s<]{11})', clean_href)
+                  if yt_match:
+                      vid = yt_match.group(1)
+                      new_div = soup.new_tag('div')
+                      new_div['class'] = 'embed-youtube'
+                      new_div.append(BeautifulSoup(f'<iframe src="https://www.youtube.com/embed/{vid}" allowfullscreen></iframe>', 'html.parser'))
+                      
+                      parent_figure = a_tag.find_parent('figure')
+                      if parent_figure:
+                          parent_figure.replace_with(new_div)
+                      else:
+                          a_tag.replace_with(new_div)
+                      continue
+
+                  if any(domain in clean_href for domain in ['google.com/maps', 'goo.gl/maps', 'maps.app.goo.gl', 'maps.google.com']):
+                      wrapper = soup.new_tag('div')
+                      
+                      if 'maps.app.goo.gl' in clean_href or 'goo.gl/maps' in clean_href:
+                          wrapper['class'] = 'source'
+                          wrapper.append(BeautifulSoup(f'🗺️ <span>Googleマップで確認する</span><br><a href="{clean_href}" target="_blank">{clean_href}</a>', 'html.parser'))
+                      else:
+                          latlng_match = re.search(r'@([0-9\.-]+),([0-9\.-]+)', clean_href)
+                          if latlng_match:
+                              lat, lng = latlng_match.groups()
+                              query_val = f"{lat},{lng}"
+                          else:
+                              query_val = clean_href
+
+                          map_div = soup.new_tag('div')
+                          map_div['class'] = 'embed-map'
+                          map_div.append(BeautifulSoup(f'<iframe src="https://maps.google.co.jp/maps?q={query_val}&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>', 'html.parser'))
+                          
+                          link_div = soup.new_tag('div')
+                          link_div['class'] = 'map-link'
+                          link_div.append(BeautifulSoup(f'<a href="{clean_href}" target="_blank">🔗 大きな地図で見るグーグルマップ</a>', 'html.parser'))
+                          
+                          wrapper.append(map_div)
+                          wrapper.append(link_div)
+
+                      parent_figure = a_tag.find_parent('figure')
+                      if parent_figure:
+                          parent_figure.replace_with(wrapper)
+                      else:
+                          a_tag.replace_with(wrapper)
+                      continue
+
+              body_node = soup.find('div', class_='page-body')
+              if not body_node:
+                  body_node = soup.find('body')
+              
+              if body_node:
+                  body_html = str(body_node)
+              else:
+                  body_html = str(soup)
+
+              def tag_replacer(match):
+                  tag_name = match.group(1)
+                  if re.fullmatch(r'[0-9a-fA-F]{3}|[0-9a-fA-F]{6}', tag_name):
+                      return f'#{tag_name}'
+                  return f'<a href="../../index.html?tag={tag_name}" class="article-tag">#{tag_name}</a>'
+
+              tag_pattern = re.compile(r'#([a-zA-Z0-9_\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]+)(?![^<]*>)')
+              processed_body = tag_pattern.sub(tag_replacer, body_html)
+
+              return processed_body
+
+          # ==========================================
+          # ファイルの走査・新規ZIP展開と反映
+          # ==========================================
+          temp_dir = 'temp_extracted'
+          zip_files = [f for f in os.listdir('.') if f.endswith('.zip')]
+
+          if zip_files:
+              os.makedirs(temp_dir, exist_ok=True)
+              for z_file in zip_files:
+                  with zipfile.ZipFile(z_file, 'r') as zip_ref:
+                      zip_ref.extractall(temp_dir)
+                  os.remove(z_file)
+
+              for root, dirs, files in os.walk(temp_dir, topdown=False):
+                  for file in files:
+                      if hash_pattern.search(file):
+                          os.rename(os.path.join(root, file), os.path.join(root, hash_pattern.sub('', file)))
+                  for d in dirs:
+                      if hash_pattern.search(d):
+                        os.rename(os.path.join(root, d), os.path.join(root, hash_pattern.sub('', d)))
+
+              today_str = datetime.now().strftime('%Y%m%d')
+              target_date_dir = os.path.join(posts_dir, today_str)
+              os.makedirs(target_date_dir, exist_ok=True)
+
+              for root, dirs, files in os.walk(temp_dir):
+                  for file in files:
+                      if file.endswith('.html'):
+                          file_path = os.path.join(root, file)
+                          with open(file_path, 'r', encoding='utf-8') as f:
+                              raw_html = f.read()
+                          
+                          title_match = re.search(r'<title>(.*?)</title>', raw_html, re.IGNORECASE)
+                          title = title_match.group(1) if title_match else file.replace('.html', '')
+                          title = hash_pattern.sub('', title).strip()
+
+                          processed_body = transform_content(raw_html)
+                          final_html = render_template(title, processed_body)
+
+                          rel_sub_path = os.path.relpath(root, temp_dir)
+                          dest_sub_dir = os.path.join(target_date_dir, rel_sub_path) if rel_sub_path != '.' else target_date_dir
+                          os.makedirs(dest_sub_dir, exist_ok=True)
+                          
+                          clean_file_name = hash_pattern.sub('', file)
+                          dest_file_path = os.path.join(dest_sub_dir, clean_file_name)
+                          
+                          with open(dest_file_path, 'w', encoding='utf-8') as f:
+                              f.write(final_html)
+
+              for item in os.listdir(temp_dir):
+                  src_item = os.path.join(temp_dir, item)
+                  if os.path.isdir(src_item):
+                      dst_item = os.path.join(target_date_dir, item)
+                      if os.path.exists(dst_item):
+                          # 既存の同名フォルダがある場合は中身を上書き・統合（既存記事を消さない）
+                          for sub_root, sub_dirs, sub_files in os.walk(src_item):
+                              rel_p = os.path.relpath(sub_root, src_item)
+                              target_sub_p = os.path.join(dst_item, rel_p) if rel_p != '.' else dst_item
+                              os.makedirs(target_sub_p, exist_ok=True)
+                              for sf in sub_files:
+                                  shutil.move(os.path.join(sub_root, sf), os.path.join(target_sub_p, sf))
+                          shutil.rmtree(src_item)
+                      else:
+                          shutil.move(src_item, dst_item)
+
+              if os.path.exists(temp_dir):
+                  shutil.rmtree(temp_dir)
+
+          # ==========================================
+          # 📚 index.html の生成（現在 Posts 内に存在する有効なHTMLファイルだけをスキャンしてリスト化）
+          # ==========================================
+          article_data = []
+          all_tags = set()
+
+          if os.path.exists(posts_dir):
+              for root, dirs, files in os.walk(posts_dir):
+                  for file in files:
+                      if file.endswith('.html'):
+                          full_path = os.path.join(root, file)
+                          rel_path = os.path.relpath(full_path, '.').replace('\\', '/')
+                          
+                          title = file.replace('.html', '')
+                          raw_text = ""
+                          target_text = ""
+                          try:
+                              with open(full_path, 'r', encoding='utf-8') as f:
+                                  content = f.read()
+                                  soup_temp = BeautifulSoup(content, 'html.parser')
+                                  
+                                  match = re.search(r'<title>(.*?)</title>', content, re.IGNORECASE)
+                                  if match:
+                                      title = match.group(1)
+                                  
+                                  body_node = soup_temp.find('div', class_='content')
+                                  if not body_node:
+                                      body_node = soup_temp.find('body')
+                                  
+                                  target_text = str(body_node) if body_node else content
+                                  raw_text = soup_temp.get_text(separator=' ', strip=True)
+                                  raw_text = re.sub(r'\s+', ' ', raw_text)
+                          except Exception:
+                              pass
+                          
+                          found_tags = re.findall(r'#([a-zA-Z0-9_\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]+)', target_text)
+                          tag_list = []
+                          for t in found_tags:
+                              if not re.fullmatch(r'[0-9a-fA-F]{3}|[0-9a-fA-F]{6}', t):
+                                  tag_list.append(t)
+                                  all_tags.add(t)
+
+                          article_data.append({
+                              'path': rel_path,
+                              'title': title,
+                              'tags': tag_list,
+                              'raw_text': raw_text
+                          })
+
+          index_content = """<!DOCTYPE html>
+          <html lang="ja">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Chamonchiのブログ / ログ一覧</title>
+              <style>
+                  body { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; background-color: #fcfcfc; color: #333; }
+                  .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+                  h1 { border-bottom: 2px solid #eaeaea; padding-bottom: 12px; margin-top: 0; color: #111; }
+                  .search-box { width: 100%; padding: 12px; font-size: 1rem; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; box-sizing: border-box; }
+                  .tag-container { margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 8px; }
+                  .tag-badge { background: #eef2f5; color: #333; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; text-decoration: none; cursor: pointer; border: 1px solid #d0d7de; transition: background 0.2s; }
+                  .tag-badge:hover, .tag-badge.active { background: #0969da; color: #fff; border-color: #0969da; }
+                  ul { padding-left: 20px; list-style: none; }
+                  li { margin: 12px 0; }
+                  a { color: #0066cc; text-decoration: none; font-weight: bold; }
+                  a:hover { text-decoration: underline; }
+                  .path { font-size: 0.85em; color: #666; margin-left: 8px; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>📚 教学・Pythonログ一覧</h1>
+                  <input type="text" id="searchInput" class="search-box" placeholder="🔍 記事のタイトルや本文をキーワード検索..." onkeyup="filterArticles()">
+          """
+
+          index_content += '        <div class="tag-container">\n'
+          index_content += '            <span class="tag-badge active" onclick="filterByTag(\'ALL\')">すべて</span>\n'
+          for tag in sorted(all_tags):
+              index_content += f'            <span class="tag-badge" onclick="filterByTag(\'{tag}\')">#{tag}</span>\n'
+          index_content += '        </div>\n'
+
+          index_content += '        <ul id="articleList">\n'
+          for item in sorted(article_data, key=lambda x: x['path'], reverse=True):
+              tags_str = ",".join(item['tags'])
+              index_content += f'        <li class="article-item" data-tags="{tags_str}" data-content="{item["title"]} {item["raw_text"]}"><a href="{item["path"]}">{item["title"]}</a><span class="path">({item["path"]})</span></li>\n'
+          index_content += '    </ul>\n'
+
+          index_content += """
+              <script>
+                  let currentTag = 'ALL';
+
+                  function filterArticles() {
+                      let input = document.getElementById('searchInput').value.toLowerCase();
+                      let items = document.getElementsByClassName('article-item');
+                      
+                      for (let i = 0; i < items.length; i++) {
+                          let searchTarget = items[i].getAttribute('data-content').toLowerCase();
+                          let tags = items[i].getAttribute('data-tags');
+                          
+                          let matchesSearch = searchTarget.includes(input);
+                          let matchesTag = (currentTag === 'ALL' || tags.split(',').includes(currentTag));
+                          
+                          if (matchesSearch && matchesTag) {
+                              items[i].style.display = "";
+                          } else {
+                              items[i].style.display = "none";
+                          }
+                      }
+                  }
+
+                  function filterByTag(tagName) {
+                      currentTag = tagName;
+                      
+                      let badges = document.getElementsByClassName('tag-badge');
+                      for (let b of badges) {
+                          if (b.textContent === (tagName === 'ALL' ? 'すべて' : '#' + tagName)) {
+                              b.classList.add('active');
+                          } else {
+                              b.classList.remove('active');
+                          }
+                      }
+                      
+                      filterArticles();
+                  }
+
+                  window.onload = function() {
+                      const urlParams = new URLSearchParams(window.location.search);
+                      const tagParam = urlParams.get('tag');
+                      if (tagParam) {
+                          filterByTag(tagParam);
+                      }
+                  };
+              </script>
+              </div>
+          </body>
+          </html>
+          """
+
+          with open('index.html', 'w', encoding='utf-8') as f:
+              f.write(index_content)
+          print("Successfully updated index based on active Posts while preserving existing files!")
+          EOF
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --staged --quiet || git commit -m "Update: sync index with existing Posts and keep safe from full deletion"
+          git push
