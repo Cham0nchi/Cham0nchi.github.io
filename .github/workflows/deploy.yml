@@ -8,9 +8,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -25,13 +31,14 @@ jobs:
         run: |
           pip install beautifulsoup4
 
-      - name: Extract ZIP, update Posts, and generate clean index
+      - name: Extract ZIP / Process raw HTML, update Posts, and generate clean index
         run: |
           python - << 'EOF'
           import os
           import zipfile
           import re
           import shutil
+          import glob
           from datetime import datetime
           from bs4 import BeautifulSoup
 
@@ -39,6 +46,7 @@ jobs:
           os.makedirs(posts_dir, exist_ok=True)
 
           hash_pattern = re.compile(r'(?:%20|\s+)[0-9a-f]{32}', re.IGNORECASE)
+          img_extensions = ('.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp')
 
           def render_template(title, body_html):
               return f'''<!DOCTYPE html>
@@ -77,6 +85,49 @@ jobs:
                       max-height: 250px;
                       object-fit: cover;
                       border-radius: 6px;
+                  }}
+                  /* 🎬 レスポンシブ動画埋め込みコンテナ */
+                  .embed-container {{
+                      position: relative;
+                      padding-bottom: 56.25%; /* 16:9比率 */
+                      height: 0;
+                      overflow: hidden;
+                      max-width: 100%;
+                      background: #000;
+                      border-radius: 8px;
+                      margin: 1.5em 0;
+                  }}
+                  .embed-container iframe {{
+                      position: absolute;
+                      top: 0;
+                      left: 0;
+                      width: 100%;
+                      height: 100%;
+                      border: 0;
+                  }}
+                  /* 🗺️ Google Maps リンク表示スタイル */
+                  .gmap-block {{
+                      background: #f8f9fa;
+                      border: 1px solid #e9ecef;
+                      border-left: 4px solid #ea4335;
+                      padding: 12px 16px;
+                      border-radius: 6px;
+                      margin: 1.5em 0;
+                  }}
+                  .gmap-block a.gmap-link {{
+                      font-weight: bold;
+                      color: #1a73e8;
+                      text-decoration: none;
+                      display: inline-block;
+                      margin-bottom: 4px;
+                  }}
+                  .gmap-block a.gmap-link:hover {{
+                      text-decoration: underline;
+                  }}
+                  .gmap-block .gmap-text {{
+                      font-size: 0.9em;
+                      color: #5f6368;
+                      word-break: break-all;
                   }}
                   .content .simple-bookmark {{
                       display: flex;
@@ -169,9 +220,88 @@ jobs:
           </html>
           '''
 
-          def transform_content(html_content):
+          def transform_content(html_content, article_title, image_dest_dir, html_folder_path):
               soup = BeautifulSoup(html_content, 'html.parser')
 
+              # 🖼️ 画像の処理
+              img_counter = 1
+              safe_title = re.sub(r'[\\/:*?"<>|]', '_', article_title)
+
+              for img in list(soup.find_all('img')):
+                  src = img.get('src', '')
+                  if not src or src.startswith('http') or img.get('class') == ['bookmark-thumb']:
+                      continue
+
+                  src_clean = hash_pattern.sub('', src).strip()
+                  src_filename = os.path.basename(src_clean)
+                  
+                  found_img_path = None
+                  candidate_path = os.path.join(html_folder_path, src_clean)
+                  if os.path.exists(candidate_path):
+                      found_img_path = candidate_path
+                  else:
+                      for root, dirs, files in os.walk(temp_dir):
+                          if src_filename in files:
+                              found_img_path = os.path.join(root, src_filename)
+                              break
+
+                  if found_img_path and os.path.exists(found_img_path):
+                      ext = os.path.splitext(found_img_path)[1].lower() or '.jpg'
+                      new_img_name = f"{safe_title}_{img_counter:02d}{ext}"
+                      
+                      dest_img_path = os.path.join(image_dest_dir, new_img_name)
+                      shutil.copy2(found_img_path, dest_img_path)
+
+                      img['src'] = f"./image/{new_img_name}"
+                      img_counter += 1
+
+              # 📺 YouTube（iframe化）/ 🗺️ Google Maps（リンク＋テキスト化）の処理
+              for a_tag in list(soup.find_all('a', href=True)):
+                  href = a_tag['href'].strip()
+                  parent = a_tag.parent
+
+                  # 1. YouTube リンクの変換
+                  yt_match = re.search(r'(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})', href)
+                  if yt_match:
+                      video_id = yt_match.group(1)
+                      embed_div = soup.new_tag('div', **{'class': 'embed-container'})
+                      iframe = soup.new_tag('iframe', **{
+                          'src': f'https://www.youtube.com/embed/{video_id}',
+                          'allowfullscreen': 'true',
+                          'allow': 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+                      })
+                      embed_div.append(iframe)
+                      
+                      if parent and parent.name in ['figure', 'p'] and len(parent.get_text(strip=True)) == len(a_tag.get_text(strip=True)):
+                          parent.replace_with(embed_div)
+                      else:
+                          a_tag.replace_with(embed_div)
+                      continue
+
+                  # 2. Google Maps リンクの整形処理（リンク表示 ＋ 下にテキスト表示）
+                  if 'google.com/maps' in href or 'maps.app.goo.gl' in href or 'maps.google.com' in href:
+                      link_text = a_tag.get_text(strip=True) or href
+
+                      map_div = soup.new_tag('div', **{'class': 'gmap-block'})
+                      
+                      # リンクアンカー
+                      map_a = soup.new_tag('a', href=href, target='_blank', **{'class': 'gmap-link'})
+                      map_a.string = "🗺️ Google Mapsで場所を開く"
+                      
+                      # 下部のテキスト表示エリア
+                      text_div = soup.new_tag('div', **{'class': 'gmap-text'})
+                      text_div.string = link_text
+
+                      map_div.append(map_a)
+                      map_div.append(text_div)
+
+                      if parent and parent.name in ['figure', 'p'] and len(parent.get_text(strip=True)) == len(a_tag.get_text(strip=True)):
+                          parent.replace_with(map_div)
+                      else:
+                          a_tag.replace_with(map_div)
+                      continue
+
+              # 💻 ソースコードの折りたたみ処理
               for pre_tag in list(soup.find_all('pre')):
                   if pre_tag.find_parent('details', class_='code-fold'):
                       continue
@@ -201,6 +331,7 @@ jobs:
                   except Exception:
                       continue
 
+              # 🔖 ブックマークリンクの自動整形
               for bookmark in list(soup.find_all('figure', class_='bookmarked-page')):
                   a_tag = bookmark.find('a', href=True)
                   if a_tag:
@@ -242,54 +373,71 @@ jobs:
 
           temp_dir = 'temp_extracted'
           zip_files = [f for f in os.listdir('.') if f.endswith('.zip')]
+          raw_html_files = [f for f in os.listdir('.') if f.endswith('.html') and f != 'index.html']
+
+          os.makedirs(temp_dir, exist_ok=True)
 
           if zip_files:
-              os.makedirs(temp_dir, exist_ok=True)
               for z_file in zip_files:
                   with zipfile.ZipFile(z_file, 'r') as zip_ref:
                       zip_ref.extractall(temp_dir)
                   os.remove(z_file)
 
-              for root, dirs, files in os.walk(temp_dir, topdown=False):
-                  for file in files:
-                      if hash_pattern.search(file):
-                          os.rename(os.path.join(root, file), os.path.join(root, hash_pattern.sub('', file)))
-                  for d in dirs:
-                      if hash_pattern.search(d):
-                          os.rename(os.path.join(root, d), os.path.join(root, hash_pattern.sub('', d)))
+          if raw_html_files:
+              for h_file in raw_html_files:
+                  shutil.move(h_file, os.path.join(temp_dir, h_file))
 
-              today_str = datetime.now().strftime('%Y%m%d')
-              target_date_dir = os.path.join(posts_dir, today_str)
-              os.makedirs(target_date_dir, exist_ok=True)
+          for root, dirs, files in os.walk(temp_dir, topdown=False):
+              for file in files:
+                  if hash_pattern.search(file):
+                      os.rename(os.path.join(root, file), os.path.join(root, hash_pattern.sub('', file)))
+              for d in dirs:
+                  if hash_pattern.search(d):
+                      os.rename(os.path.join(root, d), os.path.join(root, hash_pattern.sub('', d)))
 
-              for root, dirs, files in os.walk(temp_dir):
-                  for file in files:
-                      if file.endswith('.html'):
-                          file_path = os.path.join(root, file)
-                          try:
-                              with open(file_path, 'r', encoding='utf-8') as f:
-                                  raw_html = f.read()
-                              
-                              title_match = re.search(r'<title>(.*?)</title>', raw_html, re.IGNORECASE)
-                              title = hash_pattern.sub('', title_match.group(1)).strip() if title_match else file.replace('.html', '')
+          month_str = datetime.now().strftime('%y%m')
+          target_date_dir = os.path.join(posts_dir, month_str)
+          image_dir = os.path.join(target_date_dir, 'image')
+          os.makedirs(image_dir, exist_ok=True)
 
-                              processed_body = transform_content(raw_html)
-                              final_html = render_template(title, processed_body)
+          for root, dirs, files in os.walk(temp_dir):
+              for file in files:
+                  if file.endswith('.html'):
+                      file_path = os.path.join(root, file)
+                      try:
+                          with open(file_path, 'r', encoding='utf-8') as f:
+                              raw_html = f.read()
+                          
+                          title_match = re.search(r'<title>(.*?)</title>', raw_html, re.IGNORECASE)
+                          title = hash_pattern.sub('', title_match.group(1)).strip() if title_match else file.replace('.html', '')
+                          clean_filename = hash_pattern.sub('', file)
 
-                              rel_sub_path = os.path.relpath(root, temp_dir)
-                              dest_sub_dir = os.path.join(target_date_dir, rel_sub_path) if rel_sub_path != '.' else target_date_dir
-                              os.makedirs(dest_sub_dir, exist_ok=True)
-                              
-                              dest_file_path = os.path.join(dest_sub_dir, hash_pattern.sub('', file))
-                              with open(dest_file_path, 'w', encoding='utf-8') as f:
-                                  f.write(final_html)
-                          except Exception:
-                              pass
+                          safe_title = re.sub(r'[\\/:*?"<>|]', '_', title)
+                          for existing_root, _, existing_files in os.walk(posts_dir):
+                              if clean_filename in existing_files:
+                                  os.remove(os.path.join(existing_root, clean_filename))
+                              for ext in img_extensions:
+                                  for old_img in glob.glob(os.path.join(existing_root, "image", f"{safe_title}_[0-9][0-9]{ext}")):
+                                      if os.path.exists(old_img):
+                                          os.remove(old_img)
 
-              if os.path.exists(temp_dir):
-                  shutil.rmtree(temp_dir)
+                          processed_body = transform_content(raw_html, title, image_dir, root)
+                          final_html = render_template(title, processed_body)
 
-          # 📚 index.html の生成（コードブロックを除外してクリーンなテキストを抽出）
+                          rel_sub_path = os.path.relpath(root, temp_dir)
+                          dest_sub_dir = os.path.join(target_date_dir, rel_sub_path) if rel_sub_path != '.' else target_date_dir
+                          os.makedirs(dest_sub_dir, exist_ok=True)
+                          
+                          dest_file_path = os.path.join(dest_sub_dir, clean_filename)
+                          with open(dest_file_path, 'w', encoding='utf-8') as f:
+                              f.write(final_html)
+                      except Exception as e:
+                          print(f"Error processing {file}: {e}")
+
+          if os.path.exists(temp_dir):
+              shutil.rmtree(temp_dir)
+
+          # 📚 index.html の生成
           article_data = []
           all_tags = set()
 
@@ -310,7 +458,6 @@ jobs:
                                   if match:
                                       title = match.group(1)
                                   
-                                  # 🛡️ 【防止策】検索テキスト抽出時にコードブロック(<pre>)や折りたたみ(<details>)を完全除外
                                   for tag_to_remove in soup_temp.find_all(['pre', 'details', 'iframe']):
                                       tag_to_remove.decompose()
 
@@ -407,13 +554,30 @@ jobs:
 
           with open('index.html', 'w', encoding='utf-8') as f:
               f.write(index_content)
-          print("Successfully built with excluded code blocks in index!")
+          print("Successfully processed Notion embeds & converted Google Maps links.")
           EOF
 
       - name: Commit and push changes
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]"
+          git pull origin main --rebase || true
           git add .
-          git diff --staged --quiet || git commit -m "Fix: exclude code blocks from index data-content to prevent html corruption"
-          git push
+          git diff --staged --quiet || git commit -m "Update: convert Google Maps links to clean link cards"
+          git push origin main
+
+      - name: Upload artifact for Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
