@@ -31,7 +31,7 @@ jobs:
         run: |
           pip install beautifulsoup4
 
-      - name: Extract ZIP / Process raw HTML, update Posts, and generate clean index
+      - name: Extract ZIP / Process HTML & Assets, update Posts, and generate clean index
         run: |
           python - << 'EOF'
           import os
@@ -86,10 +86,9 @@ jobs:
                       object-fit: cover;
                       border-radius: 6px;
                   }}
-                  /* 🎬 レスポンシブ動画埋め込みコンテナ */
                   .embed-container {{
                       position: relative;
-                      padding-bottom: 56.25%; /* 16:9比率 */
+                      padding-bottom: 56.25%;
                       height: 0;
                       overflow: hidden;
                       max-width: 100%;
@@ -105,7 +104,6 @@ jobs:
                       height: 100%;
                       border: 0;
                   }}
-                  /* 🗺️ Google Maps リンク表示スタイル */
                   .gmap-block {{
                       background: #f8f9fa;
                       border: 1px solid #e9ecef;
@@ -220,10 +218,9 @@ jobs:
           </html>
           '''
 
-          def transform_content(html_content, article_title, image_dest_dir, html_folder_path):
+          def transform_content(html_content, article_title, image_dest_dir, html_folder_path, temp_dir):
               soup = BeautifulSoup(html_content, 'html.parser')
 
-              # 🖼️ 画像の処理
               img_counter = 1
               safe_title = re.sub(r'[\\/:*?"<>|]', '_', article_title)
 
@@ -248,19 +245,37 @@ jobs:
                   if found_img_path and os.path.exists(found_img_path):
                       ext = os.path.splitext(found_img_path)[1].lower() or '.jpg'
                       new_img_name = f"{safe_title}_{img_counter:02d}{ext}"
+                      new_rel_path = f"./image/{new_img_name}"
                       
                       dest_img_path = os.path.join(image_dest_dir, new_img_name)
                       shutil.copy2(found_img_path, dest_img_path)
 
-                      img['src'] = f"./image/{new_img_name}"
+                      img['src'] = new_rel_path
+
+                      parent_a = img.find_parent('a')
+                      if parent_a:
+                          parent_a['href'] = new_rel_path
+                          parent_a['target'] = '_blank'
+
+                      parent_figure = img.find_parent('figure')
+                      if parent_figure:
+                          if parent_figure.has_attr('data-notion-image'):
+                              parent_figure['data-notion-image'] = new_img_name
+
                       img_counter += 1
 
-              # 📺 YouTube（iframe化）/ 🗺️ Google Maps（リンク＋テキスト化）の処理
               for a_tag in list(soup.find_all('a', href=True)):
+                  if a_tag.find('img'):
+                      continue
+
                   href = a_tag['href'].strip()
                   parent = a_tag.parent
 
-                  # 1. YouTube リンクの変換
+                  if not href.startswith(('http://', 'https://', 'mailto:', 'tel:', '#')):
+                      clean_href = hash_pattern.sub('', href).strip()
+                      a_tag['href'] = clean_href
+                      continue
+
                   yt_match = re.search(r'(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})', href)
                   if yt_match:
                       video_id = yt_match.group(1)
@@ -278,17 +293,11 @@ jobs:
                           a_tag.replace_with(embed_div)
                       continue
 
-                  # 2. Google Maps リンクの整形処理（リンク表示 ＋ 下にテキスト表示）
                   if 'google.com/maps' in href or 'maps.app.goo.gl' in href or 'maps.google.com' in href:
                       link_text = a_tag.get_text(strip=True) or href
-
                       map_div = soup.new_tag('div', **{'class': 'gmap-block'})
-                      
-                      # リンクアンカー
                       map_a = soup.new_tag('a', href=href, target='_blank', **{'class': 'gmap-link'})
                       map_a.string = "🗺️ Google Mapsで場所を開く"
-                      
-                      # 下部のテキスト表示エリア
                       text_div = soup.new_tag('div', **{'class': 'gmap-text'})
                       text_div.string = link_text
 
@@ -301,7 +310,6 @@ jobs:
                           a_tag.replace_with(map_div)
                       continue
 
-              # 💻 ソースコードの折りたたみ処理
               for pre_tag in list(soup.find_all('pre')):
                   if pre_tag.find_parent('details', class_='code-fold'):
                       continue
@@ -331,7 +339,6 @@ jobs:
                   except Exception:
                       continue
 
-              # 🔖 ブックマークリンクの自動整形
               for bookmark in list(soup.find_all('figure', class_='bookmarked-page')):
                   a_tag = bookmark.find('a', href=True)
                   if a_tag:
@@ -371,11 +378,49 @@ jobs:
               tag_pattern = re.compile(r'#([a-zA-Z0-9_\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]+)(?![^<]*>)')
               return tag_pattern.sub(tag_replacer, body_html)
 
+          def process_raw_single_html(html_content):
+              soup = BeautifulSoup(html_content, 'html.parser')
+              
+              back_link = soup.new_tag('a', href='../../index.html', **{'class': 'back-link'})
+              back_link.string = '← ログ一覧に戻る'
+              
+              style_tag = soup.new_tag('style')
+              style_tag.string = '''
+                  .back-link {
+                      display: inline-block;
+                      margin: 20px 0 10px 20px;
+                      color: #666;
+                      text-decoration: none;
+                      font-weight: bold;
+                      font-size: 0.9em;
+                      font-family: ui-sans-serif, -apple-system, sans-serif;
+                  }
+                  .back-link:hover { color: #000; }
+              '''
+              
+              if soup.head:
+                  soup.head.append(style_tag)
+              elif soup.html:
+                  head_tag = soup.new_tag('head')
+                  head_tag.append(style_tag)
+                  soup.html.insert(0, head_tag)
+                  
+              body = soup.find('body')
+              if body:
+                  body.insert(0, back_link)
+              else:
+                  soup.insert(0, back_link)
+                  
+              return str(soup)
+
           temp_dir = 'temp_extracted'
           zip_files = [f for f in os.listdir('.') if f.endswith('.zip')]
           raw_html_files = [f for f in os.listdir('.') if f.endswith('.html') and f != 'index.html']
 
           os.makedirs(temp_dir, exist_ok=True)
+
+          # ZIPが存在しない場合のみ「単体HTMLモード」として判定
+          is_single_html_mode = bool(raw_html_files and not zip_files)
 
           if zip_files:
               for z_file in zip_files:
@@ -386,6 +431,12 @@ jobs:
           if raw_html_files:
               for h_file in raw_html_files:
                   shutil.move(h_file, os.path.join(temp_dir, h_file))
+
+          # 単体HTMLモード時に同梱されている画像フォルダ等をtemp_dirへ移動
+          if is_single_html_mode:
+              for item in os.listdir('.'):
+                  if item not in [temp_dir, posts_dir, 'index.html', '.git', '.github', 'deploy.yml']:
+                      shutil.move(item, os.path.join(temp_dir, item))
 
           for root, dirs, files in os.walk(temp_dir, topdown=False):
               for file in files:
@@ -400,6 +451,18 @@ jobs:
           image_dir = os.path.join(target_date_dir, 'image')
           os.makedirs(image_dir, exist_ok=True)
 
+          # 単体HTMLモード：アセット類（画像・CSS・サブフォルダ等）を相対構造を維持してPostsへコピー
+          if is_single_html_mode:
+              for root, dirs, files in os.walk(temp_dir):
+                  for file in files:
+                      if not file.endswith('.html'):
+                          src_file_path = os.path.join(root, file)
+                          rel_sub_path = os.path.relpath(root, temp_dir)
+                          dest_sub_dir = os.path.join(target_date_dir, rel_sub_path) if rel_sub_path != '.' else target_date_dir
+                          os.makedirs(dest_sub_dir, exist_ok=True)
+                          shutil.copy2(src_file_path, os.path.join(dest_sub_dir, file))
+
+          # HTMLファイルの処理
           for root, dirs, files in os.walk(temp_dir):
               for file in files:
                   if file.endswith('.html'):
@@ -421,8 +484,11 @@ jobs:
                                       if os.path.exists(old_img):
                                           os.remove(old_img)
 
-                          processed_body = transform_content(raw_html, title, image_dir, root)
-                          final_html = render_template(title, processed_body)
+                          if is_single_html_mode:
+                              final_html = process_raw_single_html(raw_html)
+                          else:
+                              processed_body = transform_content(raw_html, title, image_dir, root, temp_dir)
+                              final_html = render_template(title, processed_body)
 
                           rel_sub_path = os.path.relpath(root, temp_dir)
                           dest_sub_dir = os.path.join(target_date_dir, rel_sub_path) if rel_sub_path != '.' else target_date_dir
@@ -483,7 +549,7 @@ jobs:
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Chamonchiのブログ / ログ一覧</title>
+              <title>Cham0nchi</title>
               <style>
                   body { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; background-color: #fcfcfc; color: #333; }
                   .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -501,7 +567,7 @@ jobs:
           </head>
           <body>
               <div class="container">
-                  <h1>📚 教学・Pythonログ一覧</h1>
+                  <h1>Cham0nchi ログ一覧</h1>
                   <input type="text" id="searchInput" class="search-box" placeholder="🔍 記事のタイトルや本文をキーワード検索..." onkeyup="filterArticles()">
           """
 
@@ -554,7 +620,7 @@ jobs:
 
           with open('index.html', 'w', encoding='utf-8') as f:
               f.write(index_content)
-          print("Successfully processed Notion embeds & converted Google Maps links.")
+          print("Successfully processed HTML and updated index.html")
           EOF
 
       - name: Commit and push changes
@@ -563,7 +629,7 @@ jobs:
           git config --global user.email "github-actions[bot]"
           git pull origin main --rebase || true
           git add .
-          git diff --staged --quiet || git commit -m "Update: convert Google Maps links to clean link cards"
+          git diff --staged --quiet || git commit -m "Fix: preserves raw HTML style and subfolder asset structure for non-ZIP uploads"
           git push origin main
 
       - name: Upload artifact for Pages
