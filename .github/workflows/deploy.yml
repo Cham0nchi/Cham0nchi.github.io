@@ -318,6 +318,25 @@ jobs:
                           a_tag.replace_with(map_div)
                       continue
 
+                  # Miroボード埋め込み変換 (追加部分)
+                  miro_match = re.search(r'miro\.com/app/board/([a-zA-Z0-9_=-]+)', href)
+                  if miro_match:
+                      board_id = miro_match.group(1)
+                      embed_div = soup.new_tag('div', **{'class': 'embed-container'})
+                      iframe = soup.new_tag('iframe', **{
+                          'src': f'https://miro.com/app/live-embed/{board_id}/',
+                          'allowfullscreen': 'true',
+                          'scrolling': 'no',
+                          'allow': 'clipboard-read; clipboard-write'
+                      })
+                      embed_div.append(iframe)
+                      
+                      if parent and parent.name in ['figure', 'p'] and len(parent.get_text(strip=True)) == len(a_tag.get_text(strip=True)):
+                          parent.replace_with(embed_div)
+                      else:
+                          a_tag.replace_with(embed_div)
+                      continue
+
               for pre_tag in list(soup.find_all('pre')):
                   if pre_tag.find_parent('details', class_='code-fold'):
                       continue
