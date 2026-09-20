@@ -25,8 +25,13 @@
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 記事のタイトルや本文をキーワード検索..." onkeyup="filterArticles()">
         <div class="tag-container">
             <span class="tag-badge active" onclick="filterByTag('ALL')">すべて</span>
+            <span class="tag-badge" onclick="filterByTag('signe')">#signe</span>
+            <span class="tag-badge" onclick="filterByTag('テスト')">#テスト</span>
+            <span class="tag-badge" onclick="filterByTag('社会')">#社会</span>
+            <span class="tag-badge" onclick="filterByTag('算数')">#算数</span>
         </div>
         <ul id="articleList">
+        <li class="article-item" data-tags="社会,算数,テスト,社会,signe" data-content="花房城跡です。 花房城跡です。 ← ログ一覧に戻る 花房城跡です。 #社会 #算数 花房城跡です。 🗺️ Google Mapsで場所を開く https://www.google.com/maps/place/%E8%8A%B1%E6%88%BF%E5%9F%8E%E8%B7%A1/@33.8994722,130.7546389,17z/data=!3m1!4b1!4m6!3m5!1s0x3543c900147be4c9:0xe0f9bce53f18de6f!8m2!3d33.8994722!4d130.7546389!16s%2Fg%2F11y8kfd155?hl=ja-JP&entry=ttu&g_ep=EgoyMDI2MDcyMi4wIKXMDSoASAFQAw%3D%3D https://finance.biggo.jp/news/51505da0-b37a-4362-9b11-dca8b7ec50c8 #テスト #社会 #signe Facebookまとめ 2026年9月"><a href="Posts/2609/花房城跡です。.html">花房城跡です。</a><span class="path">(Posts/2609/花房城跡です。.html)</span></li>
     </ul>
 
     <script>
