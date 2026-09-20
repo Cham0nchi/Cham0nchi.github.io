@@ -196,7 +196,7 @@ jobs:
                       font-size: 0.9em;
                   }}
                   .back-link:hover {{ color: #000; }}
-                  .content a.article-tag {{
+                  a.article-tag {{
                       color: #0969da;
                       background: #eef2f5;
                       padding: 2px 6px;
@@ -217,6 +217,14 @@ jobs:
           </body>
           </html>
           '''
+
+          def tag_replacer(match):
+              tag_name = match.group(1)
+              if re.fullmatch(r'[0-9a-fA-F]{3}|[0-9a-fA-F]{6}', tag_name):
+                  return f'#{tag_name}'
+              return f'<a href="../../index.html?tag={tag_name}" class="article-tag">#{tag_name}</a>'
+
+          tag_pattern = re.compile(r'#([a-zA-Z0-9_\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]+)(?![^<]*>)')
 
           def transform_content(html_content, article_title, image_dest_dir, html_folder_path, temp_dir):
               soup = BeautifulSoup(html_content, 'html.parser')
@@ -369,13 +377,6 @@ jobs:
               body_node = soup.find('div', class_='page-body') or soup.find('body')
               body_html = str(body_node) if body_node else str(soup)
 
-              def tag_replacer(match):
-                  tag_name = match.group(1)
-                  if re.fullmatch(r'[0-9a-fA-F]{3}|[0-9a-fA-F]{6}', tag_name):
-                      return f'#{tag_name}'
-                  return f'<a href="../../index.html?tag={tag_name}" class="article-tag">#{tag_name}</a>'
-
-              tag_pattern = re.compile(r'#([a-zA-Z0-9_\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]+)(?![^<]*>)')
               return tag_pattern.sub(tag_replacer, body_html)
 
           def process_raw_single_html(html_content):
@@ -396,6 +397,14 @@ jobs:
                       font-family: ui-sans-serif, -apple-system, sans-serif;
                   }
                   .back-link:hover { color: #000; }
+                  a.article-tag {
+                      color: #0969da;
+                      background: #eef2f5;
+                      padding: 2px 6px;
+                      border-radius: 4px;
+                      text-decoration: none;
+                      font-size: 0.9em;
+                  }
               '''
               
               if soup.head:
@@ -411,7 +420,8 @@ jobs:
               else:
                   soup.insert(0, back_link)
                   
-              return str(soup)
+              html_str = str(soup)
+              return tag_pattern.sub(tag_replacer, html_str)
 
           temp_dir = 'temp_extracted'
           zip_files = [f for f in os.listdir('.') if f.endswith('.zip')]
@@ -419,7 +429,6 @@ jobs:
 
           os.makedirs(temp_dir, exist_ok=True)
 
-          # ZIPが存在しない場合のみ「単体HTMLモード」として判定
           is_single_html_mode = bool(raw_html_files and not zip_files)
 
           if zip_files:
@@ -432,7 +441,6 @@ jobs:
               for h_file in raw_html_files:
                   shutil.move(h_file, os.path.join(temp_dir, h_file))
 
-          # 単体HTMLモード時に同梱されている画像フォルダ等をtemp_dirへ移動
           if is_single_html_mode:
               for item in os.listdir('.'):
                   if item not in [temp_dir, posts_dir, 'index.html', '.git', '.github', 'deploy.yml']:
@@ -451,7 +459,6 @@ jobs:
           image_dir = os.path.join(target_date_dir, 'image')
           os.makedirs(image_dir, exist_ok=True)
 
-          # 単体HTMLモード：アセット類（画像・CSS・サブフォルダ等）を相対構造を維持してPostsへコピー
           if is_single_html_mode:
               for root, dirs, files in os.walk(temp_dir):
                   for file in files:
@@ -462,7 +469,6 @@ jobs:
                           os.makedirs(dest_sub_dir, exist_ok=True)
                           shutil.copy2(src_file_path, os.path.join(dest_sub_dir, file))
 
-          # HTMLファイルの処理
           for root, dirs, files in os.walk(temp_dir):
               for file in files:
                   if file.endswith('.html'):
@@ -549,7 +555,7 @@ jobs:
           <head>
               <meta charset="UTF-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Cham0nchi</title>
+              <title>Chamonchi</title>
               <style>
                   body { font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 20px; line-height: 1.6; background-color: #fcfcfc; color: #333; }
                   .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -629,7 +635,7 @@ jobs:
           git config --global user.email "github-actions[bot]"
           git pull origin main --rebase || true
           git add .
-          git diff --staged --quiet || git commit -m "Fix: preserves raw HTML style and subfolder asset structure for non-ZIP uploads"
+          git diff --staged --quiet || git commit -m "Fix: adds hashtag processing to single HTML mode"
           git push origin main
 
       - name: Upload artifact for Pages
