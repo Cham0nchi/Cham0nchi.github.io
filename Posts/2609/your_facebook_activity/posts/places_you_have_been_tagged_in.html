@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>タグ付けしたスポット</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.7;
+            background-color: #fcfcfc;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h1.page-title {
+            font-size: 2rem;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 15px;
+            margin-top: 0;
+            color: #111;
+        }
+        p { margin: 1em 0; }
+        .content img:not(.bookmark-thumb) {
+            max-width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .embed-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        .embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .gmap-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #ea4335;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 1.5em 0;
+        }
+        .gmap-block a.gmap-link {
+            font-weight: bold;
+            color: #1a73e8;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .gmap-block a.gmap-link:hover {
+            text-decoration: underline;
+        }
+        .gmap-block .gmap-text {
+            font-size: 0.9em;
+            color: #5f6368;
+            word-break: break-all;
+        }
+        .content .simple-bookmark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0969da;
+            text-decoration: none;
+            background: #f6f8fa;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #d0d7de;
+            margin: 1em 0;
+            box-sizing: border-box;
+        }
+        .content .simple-bookmark:hover {
+            background: #eef2f5;
+            text-decoration: none;
+        }
+        .bookmark-thumb {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+            background: #fff;
+            border: 1px solid #eaeaea;
+        }
+        .bookmark-title {
+            font-weight: 600;
+            font-size: 0.95em;
+            word-break: break-all;
+            flex-grow: 1;
+        }
+        details.code-fold {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            margin: 1.5em 0;
+            overflow: hidden;
+        }
+        details.code-fold summary {
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #eaeef2;
+            color: #24292e;
+            user-select: none;
+        }
+        details.code-fold summary:hover {
+            background: #dde3ea;
+        }
+        details.code-fold pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background: #f6f8fa;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+            font-size: 0.85em;
+            line-height: 1.45;
+            color: #24292e;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .back-link:hover { color: #000; }
+        a.article-tag {
+            color: #0969da;
+            background: #eef2f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="back-link">← ログ一覧に戻る</a>
+        <h1 class="page-title">タグ付けしたスポット</h1>
+        <div class="content">
+            <body class="_5vb_ _2yq _a7o5"><div class="_li"><div class="_a705"><header aria-labelledby="u_0_2n_cH" class="_as-_ _a709"><div class="_a70d"><h1 id="u_0_2n_cH">タグ付けしたスポット</h1><p class="_a70f">投稿であなたがタグ付けしたスポット</p><aside class="_aoaa" role="contentinfo"><time datetime="2026-09-23T12:41Z">2026年9月23日水曜日21:41 UTC+09:00</time>にHirokazu Kadoyaさんが作成しました<div><time datetime="2026-09-16T12:37Z">2026年9月16日21:37</time>から<time datetime="2026-09-23T12:37Z">2026年9月23日21:37</time>までにリクエストしたデータが含まれています</div></aside></div></header><main class="_a706" role="main"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">8月 11, 2024 3:41:44 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2o_+P" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2o_+P">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">山口市 常栄寺</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">8月 11, 2024 2:51:40 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2p_gc" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2p_gc">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">常栄寺雪舟庭園</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">8月 11, 2024 1:45:33 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2q_KG" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2q_KG">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">はなのうみ</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">8月 02, 2024 8:44:22 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2r_jr" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2r_jr">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">大牟田市動物園 Omuta City Zoo</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">7月 28, 2024 3:10:44 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2s_FT" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2s_FT">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">喫茶 山村庵</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">7月 12, 2024 9:42:03 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2t_zW" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2t_zW">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">宮地嶽神社</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">6月 30, 2024 5:08:31 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2u_dy" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2u_dy">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">長崎阿蘭陀珈琲館</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">5月 24, 2024 2:23:37 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2v_Pf" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2v_Pf">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">鍋田水遊び公園</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">5月 24, 2024 11:48:15 AM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2w_Vk" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2w_Vk">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">熊本県 山鹿市</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">5月 24, 2024 8:21:23 AM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2x_4y" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2x_4y">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">かえる寺</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">4月 18, 2024 2:31:15 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2y_zj" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2y_zj">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">御船山楽園</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">4月 18, 2024 11:54:21 AM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_2z_m8" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_2z_m8">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">Daikōzen-ji</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">8月 05, 2023 2:56:06 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_30_Yw" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_30_Yw">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">大阪市</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">7月 15, 2017 3:20:59 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_31_hC" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_31_hC">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">西鞍の丘総合運動公園</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">12月 17, 2016 3:27:54 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_32_nq" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_32_nq">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">Pain Stock</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">12月 11, 2016 11:17:51 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_33_TA" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_33_TA">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">篠栗九大の森</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p"><table style="table-layout: fixed;"><tr><td class="_a6_q">アクセス日時</td><td class="_2piu _a6_r">12月 11, 2016 12:21:32 PM</td></tr><tr><td class="_a6_q" colspan="2"><div><section aria-labelledby="u_0_34_et" class="_3-95 _a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_34_et">スポット</h2><div class="_2pi8 _2pic _a6-p"><div><div class="_2ph_ _a6_q">名前</div><div><div><section class="_3-95 _a6-g"><div class="_2pi8 _2pic _a6-p">白水大池公園</div></section></div></div></div></div></section></div></td></tr></table></div></section></div><footer class="_3-94 _a6-o"><div class="_a72d"></div></footer></section></main></div></div></body>
+        </div>
+    </div>
+</body>
+</html>

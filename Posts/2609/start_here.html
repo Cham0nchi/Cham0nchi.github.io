@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>あなたの情報</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.7;
+            background-color: #fcfcfc;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        h1.page-title {
+            font-size: 2rem;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 15px;
+            margin-top: 0;
+            color: #111;
+        }
+        p { margin: 1em 0; }
+        .content img:not(.bookmark-thumb) {
+            max-width: 100%;
+            height: auto;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+        .embed-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+            border-radius: 8px;
+            margin: 1.5em 0;
+        }
+        .embed-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .gmap-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #ea4335;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 1.5em 0;
+        }
+        .gmap-block a.gmap-link {
+            font-weight: bold;
+            color: #1a73e8;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .gmap-block a.gmap-link:hover {
+            text-decoration: underline;
+        }
+        .gmap-block .gmap-text {
+            font-size: 0.9em;
+            color: #5f6368;
+            word-break: break-all;
+        }
+        .content .simple-bookmark {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #0969da;
+            text-decoration: none;
+            background: #f6f8fa;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #d0d7de;
+            margin: 1em 0;
+            box-sizing: border-box;
+        }
+        .content .simple-bookmark:hover {
+            background: #eef2f5;
+            text-decoration: none;
+        }
+        .bookmark-thumb {
+            width: 36px;
+            height: 36px;
+            object-fit: cover;
+            border-radius: 4px;
+            flex-shrink: 0;
+            background: #fff;
+            border: 1px solid #eaeaea;
+        }
+        .bookmark-title {
+            font-weight: 600;
+            font-size: 0.95em;
+            word-break: break-all;
+            flex-grow: 1;
+        }
+        details.code-fold {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            margin: 1.5em 0;
+            overflow: hidden;
+        }
+        details.code-fold summary {
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #eaeef2;
+            color: #24292e;
+            user-select: none;
+        }
+        details.code-fold summary:hover {
+            background: #dde3ea;
+        }
+        details.code-fold pre {
+            margin: 0;
+            padding: 14px;
+            overflow-x: auto;
+            background: #f6f8fa;
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+            font-size: 0.85em;
+            line-height: 1.45;
+            color: #24292e;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .back-link:hover { color: #000; }
+        a.article-tag {
+            color: #0969da;
+            background: #eef2f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="back-link">← ログ一覧に戻る</a>
+        <h1 class="page-title">あなたの情報</h1>
+        <div class="content">
+            <body class="_5vb_ _2yq _a7o5"><div class="_li"><div class="_a705"><header aria-labelledby="u_0_0_rV" class="_a709"><div class="_a70d"><h1 id="u_0_0_rV">ダウンロードについて</h1><p class="_aoa9">あなたの情報は、このダウンロードのHTMLファイルに含まれています。これらのリンクからあなたの情報に移動するには、ダウンロードをデスクトップデバイスで表示することをおすすめします。モバイルデバイスではリンクが機能しません。</p><p class="_aoa9">モバイルデバイスでは、ダウンロードのフォルダーを使用してHTMLファイルに移動します。各情報はそれぞれのHTMLファイルに保存されており、ファイルを開いて閲覧できます。</p><aside class="_aoaa" role="contentinfo"><time datetime="2026-09-23T12:41Z">2026年9月23日水曜日21:41 UTC+09:00</time>にHirokazu Kadoyaさんが作成しました<div><time datetime="2026-09-16T12:37Z">2026年9月16日21:37</time>から<time datetime="2026-09-23T12:37Z">2026年9月23日21:37</time>までにリクエストしたデータが含まれています</div></aside></div></header><main class="_a706" role="main"><section aria-labelledby="u_0_1_Pa" class="_a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_1_Pa">あなたのFacebookアクティビティ</h2><div class="_2ph_ _a6-p"><article aria-labelledby="u_0_2_of" class="_a76v"><div class="_a6_v"><header class="_a6_w"><h3 id="u_0_2_of">投稿</h3><p>Facebookでシェアした投稿、タイムラインで非表示になっている投稿、作成したアンケート</p></header></div><nav aria-labelledby="u_0_2_of" class="_a6_-"><div><a class="_a6__" href="your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.html">あなたの投稿、チェックイン、写真、動画</a></div><div><a class="_a6__" href="your_facebook_activity/posts/your_videos.html">あなたの動画</a></div><div><a class="_a6__" href="your_facebook_activity/posts/your_photos.html">あなたの写真</a></div><div><a class="_a6__" href="your_facebook_activity/posts/content_sharing_links_you_have_created.html">あなたが作成したコンテンツシェアリンク</a></div><div><a class="_a6__" href="your_facebook_activity/posts/places_you_have_been_tagged_in.html">タグ付けしたスポット</a></div><div><a class="_a6__" href="your_facebook_activity/posts/shared_memories.html">シェアした思い出</a></div><div><a class="_a6__" href="your_facebook_activity/posts/edits_you_made_to_posts.html">投稿への編集</a></div></nav></article></div></section><section aria-labelledby="u_0_3_72" class="_a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_3_72">個人の情報</h2><div class="_2ph_ _a6-p"><article aria-labelledby="u_0_4_69" class="_a76v"><div class="_a6_v"><header class="_a6_w"><h3 id="u_0_4_69">プロフィール情報</h3><p>あなたの連絡先情報、プロフィールの[基本データ]セクションにある情報、ライフイベント、趣味、音楽</p></header></div><nav aria-labelledby="u_0_4_69" class="_a6_-"><div><a class="_a6__" href="personal_information/profile_information/profile_information.html">プロフィール情報</a></div><div><a class="_a6__" href="personal_information/profile_information/your_devices.html">あなたのデバイス</a></div><div><a class="_a6__" href="personal_information/profile_information/contacts_sync_settings.html">連絡先の同期設定</a></div><div><a class="_a6__" href="personal_information/profile_information/autofill_information.html">自動入力情報</a></div><div><a class="_a6__" href="personal_information/profile_information/rising_fan_badges_you've_received.html">獲得したライジングファンバッジ</a></div><div><a class="_a6__" href="personal_information/profile_information/contacts_uploaded_before_2021.html">2021年以前にアップロードされた連絡先</a></div><div><a class="_a6__" href="personal_information/profile_information/synced_contacts_from_instagram.html">Instagramから同期した連絡先</a></div><div><a class="_a6__" href="personal_information/profile_information/the_ways_we_can_send_you_notifications.html">Metaからあなたにお知らせを送信できる方法</a></div></nav></article></div></section><section aria-labelledby="u_0_5_/m" class="_a6-g"><h2 class="_2ph_ _a6-h _a6-i" id="u_0_5_/m">記録済み情報</h2><div class="_2ph_ _a6-p"><article aria-labelledby="u_0_6_wU" class="_a76v"><div class="_a6_v"><header class="_a6_w"><h3 id="u_0_6_wU">位置情報</h3><p>位置情報関連</p></header></div><nav aria-labelledby="u_0_6_wU" class="_a6_-"><div><a class="_a6__" href="logged_information/location/location_services_setting.html">位置情報サービス設定</a></div><div><a class="_a6__" href="logged_information/location/your_privacy_jurisdiction.html">プライバシーの管轄</a></div><div><a class="_a6__" href="logged_information/location/primary_location.html">主な所在地</a></div></nav></article><article aria-labelledby="u_0_7_6j" class="_a76v"><div class="_a6_v"><header class="_a6_w"><h3 id="u_0_7_6j">検索</h3><p>Facebookでの検索履歴</p></header></div><nav aria-labelledby="u_0_7_6j" class="_a6_-"><div><a class="_a6__" href="logged_information/search/your_search_history.html">検索履歴</a></div><div><a class="_a6__" href="logged_information/search/your_educational_notification_interactions.html">解説に関するお知らせへのインタラクション</a></div></nav></article><article aria-labelledby="u_0_8_IB" class="_a76v"><div class="_a6_v"><header class="_a6_w"><h3 id="u_0_8_IB">お知らせ</h3><p>通知の履歴</p></header></div><nav aria-labelledby="u_0_8_IB" class="_a6_-"><div><a class="_a6__" href="logged_information/notifications/notifications.html">お知らせ</a></div><div><a class="_a6__" href="logged_information/notifications/your_notifications_tab_activity.html">[お知らせ]タブのアクティビティ</a></div></nav></article></div></section></main></div></div></body>
+        </div>
+    </div>
+</body>
+</html>
