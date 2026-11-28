@@ -39,7 +39,7 @@
     }
 
     .container {
-      max-width: 1380px;
+      max-width: 1560px;
       margin: 0 auto;
     }
 
@@ -147,7 +147,7 @@
     table.history-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1020px;
+      min-width: 1280px;
       font-size: 0.92rem;
     }
 
@@ -212,7 +212,7 @@
     }
 
     .comment-cell {
-      min-width: 340px;
+      min-width: 320px;
       line-height: 1.95;
     }
 
@@ -222,7 +222,7 @@
       padding: 1px 4px;
       margin: 0 1px;
       display: inline-block;
-      transition: filter 0.12s ease;
+      transition: filter 0.12s ease, box-shadow 0.12s ease;
     }
 
     .vocab-word[data-pos="動詞"] {
@@ -244,8 +244,69 @@
       outline-offset: 1px;
     }
 
+    .vocab-word.is-selected {
+      box-shadow: 0 0 0 2px #111827;
+    }
+
+    .word-meaning-cell {
+      min-width: 220px;
+      background-color: #f8fafc;
+    }
+
+    .word-meaning-placeholder {
+      color: #6b7280;
+      font-size: 0.84rem;
+    }
+
+    .word-meaning-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-left: 4px solid #2563eb;
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    .word-meaning-box.is-adj {
+      border-left-color: #f59e0b;
+    }
+
+    .word-meaning-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .word-meaning-word {
+      font-weight: 700;
+      color: #111827;
+      font-size: 0.95rem;
+    }
+
+    .word-meaning-pos {
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+    }
+
+    .word-meaning-pos.pos-動詞 {
+      background: var(--verb-bg);
+      color: var(--verb-text);
+    }
+
+    .word-meaning-pos.pos-形容詞 {
+      background: var(--adj-bg);
+      color: var(--adj-text);
+    }
+
+    .word-meaning-ja {
+      color: #1f2937;
+      font-size: 0.88rem;
+    }
+
     .translation-cell {
-      min-width: 300px;
+      min-width: 280px;
     }
 
     .translation-toggle {
@@ -281,77 +342,6 @@
     .translation-cell.is-open .translation-text {
       display: block;
     }
-
-    <a href="../../index.html?tag=vocab" class="article-tag">#vocab</a>-popup {
-      position: fixed;
-      z-index: 99999;
-      display: none;
-      width: 280px;
-      max-width: calc(100vw - 24px);
-      background: #111827;
-      color: #f9fafb;
-      border: 1px solid #374151;
-      border-radius: 10px;
-      padding: 12px 14px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    <a href="../../index.html?tag=vocab" class="article-tag">#vocab</a>-popup.is-visible {
-      display: block;
-    }
-
-    .popup-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .popup-word {
-      font-weight: 700;
-      font-size: 1rem;
-      color: #ffffff;
-      margin-right: 6px;
-    }
-
-    .popup-pos {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 999px;
-      display: inline-block;
-    }
-
-    .popup-pos.pos-動詞 {
-      background: #3b82f6;
-      color: #ffffff;
-    }
-
-    .popup-pos.pos-形容詞 {
-      background: #f59e0b;
-      color: #111827;
-    }
-
-    .popup-close {
-      background: transparent;
-      border: none;
-      color: #d1d5db;
-      font-size: 1.25rem;
-      line-height: 1;
-      cursor: pointer;
-      padding: 0 4px;
-    }
-
-    .popup-close:hover {
-      color: #ffffff;
-    }
-
-    .popup-meaning {
-      color: #f3f4f6;
-    }
   </style>
 <style>
         .back-link {
@@ -379,8 +369,8 @@
 <div>
 <h1>オンライン英会話受講履歴（November 2026）</h1>
 <div class="legend">
-<span>コメント内の <span class="badge-sample-verb">動詞</span>・<span class="badge-sample-adj">形容詞</span> をクリック/タップすると日本語訳が表示されます。</span>
-<span>右隣の日本語訳はクリックで表示/非表示を切り替えられます。</span>
+<span>コメント内の <span class="badge-sample-verb">動詞</span>・<span class="badge-sample-adj">形容詞</span> をクリックすると、すぐ右の「単語訳」列に日本語訳が表示されます。</span>
+<span>「講師コメント（日本語訳）」はクリックで表示/非表示を切り替えられます。</span>
 </div>
 </div>
 <div class="controls">
@@ -401,6 +391,7 @@
 <th>講師</th>
 <th>評価</th>
 <th>講師コメント</th>
+<th>単語訳</th>
 <th>講師コメント（日本語訳）</th>
 </tr>
 </thead>
@@ -417,6 +408,9 @@
 <td class="comment-cell">
 <span class="vocab-word" data-ja="良い、素敵な（Good dayで「こんにちは」）" data-pos="形容詞" tabindex="0">Good</span> day! We <span class="vocab-word" data-ja="〜できなかった（could notの短縮形）" data-pos="動詞" tabindex="0">couldn't</span> <span class="vocab-word" data-ja="進める、行う" data-pos="動詞" tabindex="0">proceed</span> with the lesson today because you <span class="vocab-word" data-ja="〜だった（be動詞の過去形）" data-pos="動詞" tabindex="0">were</span> <span class="vocab-word" data-ja="欠席した、不在の" data-pos="形容詞" tabindex="0">absent</span>. Hopefully, everything <span class="vocab-word" data-ja="である（be動詞の現在形）" data-pos="動詞" tabindex="0">is</span> <span class="vocab-word" data-ja="大丈夫な、問題ない" data-pos="形容詞" tabindex="0">okay</span>. <span class="vocab-word" data-ja="過ごす、持つ" data-pos="動詞" tabindex="0">Have</span> a <span class="vocab-word" data-ja="素敵な、良い" data-pos="形容詞" tabindex="0">nice</span> day! <span class="vocab-word" data-ja="会う、見る" data-pos="動詞" tabindex="0">See</span> you <span class="vocab-word" data-ja="次の、今度の" data-pos="形容詞" tabindex="0">next</span> time.
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは！本日はご欠席のためレッスンを進めることができませんでした。どうか体調など問題ありませんように。素敵な一日をお過ごしください。また次回お会いしましょう！</div>
@@ -434,6 +428,9 @@
 <td class="comment-cell">
                 Hello. I <span class="vocab-word" data-ja="感じた、思った（feelの過去形）" data-pos="動詞" tabindex="0">felt</span> really <span class="vocab-word" data-ja="残念な、申し訳ない" data-pos="形容詞" tabindex="0">sorry</span> because we <span class="vocab-word" data-ja="〜できなかった（were notの短縮形）" data-pos="動詞" tabindex="0">weren’t</span> <span class="vocab-word" data-ja="できる状態で（be able toで「〜できる」）" data-pos="形容詞" tabindex="0">able</span> to <span class="vocab-word" data-ja="持つ、行う" data-pos="動詞" tabindex="0">have</span> a class today due to <span class="vocab-word" data-ja="何らかの、いくつかの" data-pos="形容詞" tabindex="0">some</span> reasons. I <span class="vocab-word" data-ja="望む、願う" data-pos="動詞" tabindex="0">hope</span> to <span class="vocab-word" data-ja="会う、見る" data-pos="動詞" tabindex="0">see</span> you <span class="vocab-word" data-ja="次の、今度の" data-pos="形容詞" tabindex="0">next</span> time!
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは。いくつかの事情により本日レッスンを行うことができず、本当に残念に思いました。次回お会いできるのを楽しみにしています！</div>
@@ -452,6 +449,9 @@
 <span class="vocab-word" data-ja="良い、素敵な（Good dayで「こんにちは」）" data-pos="形容詞" tabindex="0">Good</span> day! We <span class="vocab-word" data-ja="〜できなかった（were notの短縮形）" data-pos="動詞" tabindex="0">weren't</span> <span class="vocab-word" data-ja="できる状態で（be able toで「〜できる」）" data-pos="形容詞" tabindex="0">able</span> to <span class="vocab-word" data-ja="進める、行う" data-pos="動詞" tabindex="0">proceed</span> with the lesson today because you <span class="vocab-word" data-ja="〜だった（be動詞の過去形）" data-pos="動詞" tabindex="0">were</span> <span class="vocab-word" data-ja="欠席した、不在の" data-pos="形容詞" tabindex="0">absent</span>. Hopefully, everything <span class="vocab-word" data-ja="である（be動詞の現在形）" data-pos="動詞" tabindex="0">is</span> <span class="vocab-word" data-ja="大丈夫な、問題ない" data-pos="形容詞" tabindex="0">okay</span>.<br/>
 <span class="vocab-word" data-ja="過ごす、持つ" data-pos="動詞" tabindex="0">Have</span> a <span class="vocab-word" data-ja="素敵な、良い" data-pos="形容詞" tabindex="0">nice</span> day! <span class="vocab-word" data-ja="会う、見る" data-pos="動詞" tabindex="0">See</span> you <span class="vocab-word" data-ja="次の、今度の" data-pos="形容詞" tabindex="0">next</span> time.
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは！本日はご欠席のためレッスンを進めることができませんでした。どうかすべて問題ありませんように。<br/>素敵な一日をお過ごしください！また次回お会いしましょう。</div>
@@ -469,6 +469,9 @@
 <td class="comment-cell">
                 Hello! <span class="vocab-word" data-ja="感謝する、お礼を言う" data-pos="動詞" tabindex="0">Thank</span> you for <span class="vocab-word" data-ja="〜である、いる（動名詞形）" data-pos="動詞" tabindex="0">being</span> so <span class="vocab-word" data-ja="積極的に参加した、熱心な" data-pos="形容詞" tabindex="0">engaged</span> in today's lesson. I <span class="vocab-word" data-ja="楽しんだ、喜んだ（enjoyの過去形）" data-pos="動詞" tabindex="0">enjoyed</span> <span class="vocab-word" data-ja="聞く（hearの動名詞形）" data-pos="動詞" tabindex="0">hearing</span> your thoughts and <span class="vocab-word" data-ja="見る、目にする（seeの動名詞形）" data-pos="動詞" tabindex="0">seeing</span> you <span class="vocab-word" data-ja="参加する" data-pos="動詞" tabindex="0">participate</span> in our activities. Your willingness to <span class="vocab-word" data-ja="学ぶ、習得する" data-pos="動詞" tabindex="0">learn</span> <span class="vocab-word" data-ja="作る、〜にする" data-pos="動詞" tabindex="0">makes</span> <span class="vocab-word" data-ja="それぞれの、毎回の" data-pos="形容詞" tabindex="0">each</span> class <span class="vocab-word" data-ja="意味のある、充実した" data-pos="形容詞" tabindex="0">meaningful</span>. <span class="vocab-word" data-ja="保つ、維持する" data-pos="動詞" tabindex="0">Keep</span> that <span class="vocab-word" data-ja="前向きな、ポジティブな" data-pos="形容詞" tabindex="0">positive</span> attitude and <span class="vocab-word" data-ja="続ける" data-pos="動詞" tabindex="0">continue</span> <span class="vocab-word" data-ja="する、行う（動名詞形）" data-pos="動詞" tabindex="0">doing</span> your <span class="vocab-word" data-ja="最善の、最高の" data-pos="形容詞" tabindex="0">best</span>. <span class="vocab-word" data-ja="素晴らしい、見事な" data-pos="形容詞" tabindex="0">Great</span> job today!
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは！本日のレッスンにとても積極的に取り組んでくださりありがとうございます。あなたの考えを聞いたり、アクティビティに参加する姿を見たりできて楽しかったです。学ぶ意欲が毎回のレッスンを充実したものにしてくれます。その前向きな姿勢を保ちつつ、これからもベストを尽くし続けてくださいね。今日は本当によく頑張りました！</div>
@@ -486,6 +489,9 @@
 <td class="comment-cell">
                 Hello, Nozomi! You <span class="vocab-word" data-ja="した、成し遂げた（doの過去形）" data-pos="動詞" tabindex="0">did</span> an <span class="vocab-word" data-ja="素晴らしい、驚くほどの" data-pos="形容詞" tabindex="0">amazing</span> job in class today! I <span class="vocab-word" data-ja="〜だった（be動詞の過去形）" data-pos="動詞" tabindex="0">was</span> so <span class="vocab-word" data-ja="誇りに思う、うれしい" data-pos="形容詞" tabindex="0">proud</span> to <span class="vocab-word" data-ja="見る、わかる" data-pos="動詞" tabindex="0">see</span> how <span class="vocab-word" data-ja="賢い、頭のよい" data-pos="形容詞" tabindex="0">smart</span> you <span class="vocab-word" data-ja="である（be動詞の現在形）" data-pos="動詞" tabindex="0">are</span> and how quickly you <span class="vocab-word" data-ja="理解した（understandの過去形）" data-pos="動詞" tabindex="0">understood</span> everything we <span class="vocab-word" data-ja="練習した（practiceの過去形）" data-pos="動詞" tabindex="0">practiced</span>. You <span class="vocab-word" data-ja="聞いた、耳を傾けた（listenの過去形）" data-pos="動詞" tabindex="0">listened</span> so carefully and <span class="vocab-word" data-ja="与えた、注いだ（giveの過去形）" data-pos="動詞" tabindex="0">gave</span> your <span class="vocab-word" data-ja="絶対的な、完全な" data-pos="形容詞" tabindex="0">absolute</span> <span class="vocab-word" data-ja="最善の、最高の" data-pos="形容詞" tabindex="0">best</span> effort throughout our lesson. <span class="vocab-word" data-ja="保つ、続ける" data-pos="動詞" tabindex="0">Keep</span> up the <span class="vocab-word" data-ja="素晴らしい、見事な" data-pos="形容詞" tabindex="0">wonderful</span> work!
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは、Nozomiさん！今日のレッスンでは本当に素晴らしい活躍でしたね！あなたがどれほど賢く、練習したことをどれほど早く理解できたかを見ることができて、とても誇らしく思いました。レッスンを通してとても注意深く聞き、精一杯努力してくれましたね。その素晴らしい調子で頑張り続けてください！</div>
@@ -508,6 +514,9 @@
                 3. park /pɑrk/<br/>
                 I really <span class="vocab-word" data-ja="楽しんだ（enjoyの過去形）" data-pos="動詞" tabindex="0">enjoyed</span> <span class="vocab-word" data-ja="持つ、一緒に過ごす（haveの動名詞形）" data-pos="動詞" tabindex="0">having</span> you in class today. <span class="vocab-word" data-ja="保つ、続ける" data-pos="動詞" tabindex="0">Keep</span> up the <span class="vocab-word" data-ja="良い、立派な" data-pos="形容詞" tabindex="0">good</span> work, and I <span class="vocab-word" data-ja="望む、願う" data-pos="動詞" tabindex="0">hope</span> to <span class="vocab-word" data-ja="会う、見る" data-pos="動詞" tabindex="0">see</span> you again soon!
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは！本日のレッスンにご出席いただき本当にありがとうございます。ターゲット文を読んだり、地域にあるさまざまな場所を見分けたりするのがとても上手でした。単語と対応する絵を結びつけること、疑問文を作ること、適切な肯定文・否定文で答えることも大変よくできていました。集中して話を聞き、イラストに合う文を正確に選んでくださったことに感謝します。発音と文作りの練習を続けて、英語力をさらに伸ばしていきましょう。<br/>
@@ -535,6 +544,9 @@
                 3. doctor /ˈdɑːktər/<br/>
                 I <span class="vocab-word" data-ja="楽しんだ（enjoyの過去形）" data-pos="動詞" tabindex="0">enjoyed</span> <span class="vocab-word" data-ja="持つ、一緒に過ごす（haveの動名詞形）" data-pos="動詞" tabindex="0">having</span> you in class today. <span class="vocab-word" data-ja="保つ、続ける" data-pos="動詞" tabindex="0">Keep</span> up the <span class="vocab-word" data-ja="良い、立派な" data-pos="形容詞" tabindex="0">good</span> work, and I <span class="vocab-word" data-ja="望む、願う" data-pos="動詞" tabindex="0">hope</span> to <span class="vocab-word" data-ja="会う、見る" data-pos="動詞" tabindex="0">see</span> you again soon!
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは！本日のレッスンにご参加いただき本当にありがとうございます。英文を読んだり、さまざまな家族関係を見分けたりするのがとてもお上手でした。文と対応する絵を正確に結びつけ、家系図をもとに正しい文を選ばれていたことに感心しました。また、完全な文を使って人物について質問したり答えたりする方法もよく理解できていましたね。発音と文作りの練習を続けていきましょう。<br/>
@@ -557,6 +569,9 @@
 <td class="comment-cell">
 <span class="vocab-word" data-ja="良い、素敵な（Good dayで「こんにちは」）" data-pos="形容詞" tabindex="0">Good</span> day! You enthusiastically <span class="vocab-word" data-ja="答えた、応じた（answerの過去形）" data-pos="動詞" tabindex="0">answered</span> <span class="vocab-word" data-ja="すべての、全部の" data-pos="形容詞" tabindex="0">all</span> the activities we <span class="vocab-word" data-ja="持った、行った（haveの過去形）" data-pos="動詞" tabindex="0">had</span>. You <span class="vocab-word" data-ja="〜できる" data-pos="動詞" tabindex="0">can</span> <span class="vocab-word" data-ja="使う、活用する" data-pos="動詞" tabindex="0">use</span> the phrases <span class="vocab-word" data-ja="学んだ（learnの過去分詞・形容詞的用法）" data-pos="動詞" tabindex="0">learned</span> today in your <span class="vocab-word" data-ja="日々の、日常の" data-pos="形容詞" tabindex="0">daily</span> conversations so that you <span class="vocab-word" data-ja="〜しないだろう（will notの短縮形）" data-pos="動詞" tabindex="0">won’t</span> <span class="vocab-word" data-ja="忘れる" data-pos="動詞" tabindex="0">forget</span> them. <span class="vocab-word" data-ja="感謝する、お礼を言う" data-pos="動詞" tabindex="0">Thank</span> you for <span class="vocab-word" data-ja="来る（comeの動名詞形）" data-pos="動詞" tabindex="0">coming</span> to my class. It <span class="vocab-word" data-ja="〜だった（be動詞の過去形）" data-pos="動詞" tabindex="0">was</span> <span class="vocab-word" data-ja="楽しい、面白い" data-pos="形容詞" tabindex="0">fun</span> <span class="vocab-word" data-ja="教える（teachの動名詞形）" data-pos="動詞" tabindex="0">teaching</span> you. I <span class="vocab-word" data-ja="である（be動詞の現在形）" data-pos="動詞" tabindex="0">am</span> <span class="vocab-word" data-ja="探す、期待する（look forward toで「楽しみにする」）" data-pos="動詞" tabindex="0">looking</span> forward to <span class="vocab-word" data-ja="会う、見る（seeの動名詞形）" data-pos="動詞" tabindex="0">seeing</span> you <span class="vocab-word" data-ja="次の、今度の" data-pos="形容詞" tabindex="0">next</span> time. <span class="vocab-word" data-ja="過ごす、持つ" data-pos="動詞" tabindex="0">Have</span> a <span class="vocab-word" data-ja="素晴らしい、良い" data-pos="形容詞" tabindex="0">great</span> day!
               </td>
+<td class="word-meaning-cell">
+<span class="word-meaning-placeholder">動詞・形容詞をクリックするとここに日本語訳が出ます</span>
+</td>
 <td class="translation-cell">
 <button class="translation-toggle" type="button">クリックして日本語訳を表示</button>
 <div class="translation-text">こんにちは！行ったすべてのアクティビティに熱心に答えてくださりましたね。忘れないように、今日学んだフレーズを日常会話で使ってみてください。レッスンに来てくださりありがとうございます。教えるのがとても楽しかったです。次回お会いできるのを楽しみにしています。素敵な一日をお過ごしください！</div>
@@ -567,65 +582,53 @@
 </div>
 </div>
 </div>
-<div aria-live="polite" id="vocab-popup" role="dialog">
-<div class="popup-top">
-<div>
-<span class="popup-word" id="popupWord"></span>
-<span class="popup-pos" id="popupPos"></span>
-</div>
-<button aria-label="閉じる" class="popup-close" id="popupClose" type="button">×</button>
-</div>
-<div class="popup-meaning" id="popupMeaning"></div>
-</div>
 <script>
     (function () {
-      const popup = document.getElementById("vocab-popup");
-      const popupWord = document.getElementById("popupWord");
-      const popupPos = document.getElementById("popupPos");
-      const popupMeaning = document.getElementById("popupMeaning");
-      const popupClose = document.getElementById("popupClose");
+      function showWordInRow(wordEl) {
+        const row = wordEl.closest("tr");
+        if (!row) return;
+        const meaningCell = row.querySelector(".word-meaning-cell");
+        if (!meaningCell) return;
 
-      function hidePopup() {
-        popup.classList.remove("is-visible");
-      }
+        row.querySelectorAll(".vocab-word.is-selected").forEach((el) => {
+          el.classList.remove("is-selected");
+        });
+        wordEl.classList.add("is-selected");
 
-      function showPopup(target) {
-        const word = target.textContent.trim();
-        const pos = target.getAttribute("data-pos") || "";
-        const ja = target.getAttribute("data-ja") || "";
+        const word = wordEl.textContent.trim();
+        const pos = wordEl.getAttribute("data-pos") || "";
+        const ja = wordEl.getAttribute("data-ja") || "";
 
-        popupWord.textContent = word;
-        popupPos.textContent = pos;
-        popupPos.className = "popup-pos pos-" + pos;
-        popupMeaning.textContent = ja;
+        meaningCell.innerHTML = "";
+        const box = document.createElement("div");
+        box.className = "word-meaning-box" + (pos === "形容詞" ? " is-adj" : "");
 
-        popup.classList.add("is-visible");
+        const header = document.createElement("div");
+        header.className = "word-meaning-header";
 
-        const rect = target.getBoundingClientRect();
-        const popupRect = popup.getBoundingClientRect();
-        const margin = 8;
+        const wordSpan = document.createElement("span");
+        wordSpan.className = "word-meaning-word";
+        wordSpan.textContent = word;
 
-        let left = rect.left + (rect.width - popupRect.width) / 2;
-        left = Math.max(margin, Math.min(left, window.innerWidth - popupRect.width - margin));
+        const posSpan = document.createElement("span");
+        posSpan.className = "word-meaning-pos pos-" + pos;
+        posSpan.textContent = pos;
 
-        let top = rect.bottom + margin;
-        if (top + popupRect.height > window.innerHeight - margin) {
-          top = Math.max(margin, rect.top - popupRect.height - margin);
-        }
+        const jaDiv = document.createElement("div");
+        jaDiv.className = "word-meaning-ja";
+        jaDiv.textContent = ja;
 
-        popup.style.left = left + "px";
-        popup.style.top = top + "px";
+        header.appendChild(wordSpan);
+        header.appendChild(posSpan);
+        box.appendChild(header);
+        box.appendChild(jaDiv);
+        meaningCell.appendChild(box);
       }
 
       document.addEventListener("click", function (e) {
         const wordEl = e.target.closest(".vocab-word");
         if (wordEl) {
-          e.stopPropagation();
-          showPopup(wordEl);
-          return;
-        }
-        if (!popup.contains(e.target)) {
-          hidePopup();
+          showWordInRow(wordEl);
         }
       });
 
@@ -633,21 +636,9 @@
         const wordEl = e.target.closest && e.target.closest(".vocab-word");
         if (wordEl && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
-          showPopup(wordEl);
-          return;
-        }
-        if (e.key === "Escape") {
-          hidePopup();
+          showWordInRow(wordEl);
         }
       });
-
-      popupClose.addEventListener("click", function (e) {
-        e.stopPropagation();
-        hidePopup();
-      });
-
-      window.addEventListener("scroll", hidePopup, { passive: true });
-      window.addEventListener("resize", hidePopup, { passive: true });
 
       document.querySelectorAll(".translation-toggle").forEach((btn) => {
         btn.addEventListener("click", function () {
