@@ -4,106 +4,164 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>オンライン英会話受講履歴 November 2026</title>
+<title>オンライン英会話受講履歴 (November 2026)</title>
 <style>
     :root {
-      --bg: #f4f7fa;
+      --bg: #f6f8fb;
       --card: #ffffff;
-      --text: #1e293b;
+      --ink: #1e293b;
       --muted: #64748b;
-      --accent: #0284c7;
-      --accent-soft: #e0f2fe;
+      --accent: #0f766e;
+      --accent-soft: #ccfbf1;
       --border: #e2e8f0;
+      --head-bg: #1e3a5f;
+      --head-ink: #ffffff;
+      --row-alt: #f8fafc;
       --attend-bg: #dcfce7;
-      --attend-fg: #166534;
+      --attend-ink: #166534;
       --absent-bg: #fee2e2;
-      --absent-fg: #991b1b;
+      --absent-ink: #991b1b;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 28px 18px 48px;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+      padding: 24px 16px 48px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
       background: var(--bg);
-      color: var(--text);
+      color: var(--ink);
       line-height: 1.6;
     }
-    .container { max-width: 1180px; margin: 0 auto; }
-    .page-header {
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+    header.page-header {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 24px 28px;
+      padding: 20px 24px;
       margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }
-    .page-title { margin: 0 0 6px; font-size: 1.35rem; color: #0f172a; }
-    .tags { margin: 0 0 18px; font-size: 0.92rem; font-weight: 600; color: var(--accent); }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    header.page-header h1 {
+      margin: 0 0 8px;
+      font-size: 1.45rem;
+      color: var(--head-bg);
+    }
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
       gap: 12px;
+      font-size: 0.9rem;
+      color: var(--muted);
     }
-    .summary-card {
-      background: #f8fafc;
+    .stat-chip {
+      background: var(--row-alt);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
+      border-radius: 999px;
+      padding: 4px 12px;
+      color: var(--ink);
+      font-weight: 600;
     }
-    .summary-card .label { display: block; font-size: 0.78rem; color: var(--muted); }
-    .summary-card .value { font-size: 1.35rem; font-weight: 700; color: var(--accent); }
-    .section {
+    .category-section {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 22px 24px;
+      padding: 20px;
       margin-bottom: 24px;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
     }
-    .section-title {
+    .category-heading {
       margin: 0 0 16px;
       font-size: 1.15rem;
+      color: var(--head-bg);
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid var(--accent-soft);
+      gap: 8px;
     }
-    .pill {
+    .count-pill {
+      font-size: 0.8rem;
       background: var(--accent-soft);
       color: var(--accent);
-      font-size: 0.8rem;
-      font-weight: 600;
       padding: 2px 10px;
       border-radius: 999px;
+      font-weight: 700;
     }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    th {
-      background: #f1f5f9;
-      color: #334155;
-      font-weight: 600;
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    thead th {
+      background: var(--head-bg);
+      color: var(--head-ink);
       text-align: left;
-      padding: 11px 12px;
-      border-bottom: 2px solid #cbd5e1;
+      padding: 10px 12px;
+      font-weight: 600;
       white-space: nowrap;
+      border: 1px solid var(--head-bg);
     }
-    td { padding: 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-    tbody tr:nth-child(even) { background: #fafbfd; }
-    tbody tr:hover { background: #f0f9ff; }
-    .nowrap { white-space: nowrap; }
-    .center { text-align: center; }
-    .teacher { font-weight: 600; color: #0f172a; white-space: nowrap; }
-    .comment { min-width: 280px; color: #334155; word-break: break-word; }
+    tbody td {
+      padding: 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) {
+      background: var(--row-alt);
+    }
+    .col-dt {
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      font-weight: 500;
+    }
+    .course-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+    .lesson-title {
+      font-weight: 600;
+    }
+    .col-att {
+      white-space: nowrap;
+      text-align: center;
+    }
     .badge {
       display: inline-block;
       padding: 2px 10px;
       border-radius: 999px;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
     }
-    .badge-attend { background: var(--attend-bg); color: var(--attend-fg); }
-    .badge-absent { background: var(--absent-bg); color: var(--absent-fg); }
+    .badge-attend {
+      background: var(--attend-bg);
+      color: var(--attend-ink);
+    }
+    .badge-absent {
+      background: var(--absent-bg);
+      color: var(--absent-ink);
+    }
+    .col-teacher {
+      white-space: nowrap;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .col-eval {
+      white-space: nowrap;
+      text-align: center;
+      color: var(--muted);
+    }
+    .col-comment {
+      min-width: 280px;
+      color: var(--ink);
+    }
+    @media (max-width: 640px) {
+      body { padding: 12px 8px 32px; }
+      header.page-header, .category-section { padding: 14px; }
+    }
   </style>
 <style>
         .back-link {
@@ -128,91 +186,22 @@
 <body><a class="back-link" href="../../index.html">← ログ一覧に戻る</a>
 <div class="container">
 <header class="page-header">
-<h1 class="page-title">オンライン英会話受講履歴 November 2026</h1>
-<p class="tags"><a href="../../index.html?tag=english" class="article-tag">#english</a> <a href="../../index.html?tag=oehistory" class="article-tag">#oehistory</a></p>
-<div class="summary-grid">
-<div class="summary-card"><span class="label">記録レッスン数</span><span class="value">8件</span></div>
-<div class="summary-card"><span class="label">出席</span><span class="value">7件</span></div>
-<div class="summary-card"><span class="label">欠席</span><span class="value">1件</span></div>
-<div class="summary-card"><span class="label">ゲーム合計勝数</span><span class="value">3勝</span></div>
+<h1>オンライン英会話受講履歴 — November 2026</h1>
+<div class="meta-bar">
+<span class="stat-chip">対象期間: November 2026</span>
+<span class="stat-chip">記録件数: 8件</span>
+<span class="stat-chip">出席: 6件</span>
+<span class="stat-chip">欠席: 2件</span>
 </div>
 </header>
-<section class="section">
-<h2 class="section-title">【ゲームレッスン】 <span class="pill">6件</span></h2>
+<section class="category-section">
+<h2 class="category-heading">【英会話】 <span class="count-pill">8件</span></h2>
 <div class="table-wrap">
 <table>
 <thead>
 <tr>
-<th>コース・ゲーム名</th>
 <th>予約日時</th>
-<th>出欠</th>
-<th>講師</th>
-<th>勝数</th>
-<th>講師コメント</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="nowrap"><strong>【10分版】リバーシ</strong></td>
-<td class="nowrap">2026/11/19(木) 20:30-20:40</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">VIRGINIA BAR</td>
-<td class="center">1</td>
-<td class="comment">Hello! It was a good GAME! We enjoyed our conversation as well. Loads of fun! Looking forward to playing the GAME with you again!</td>
-</tr>
-<tr>
-<td class="nowrap"><strong>【10分版】リバーシ</strong></td>
-<td class="nowrap">2026/11/19(木) 16:15-16:25</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">DANICA ORA</td>
-<td class="center">1</td>
-<td class="comment">Hello! It was an amazing GAME.Thumbs up for a job well done. I really enjoyed it! Well played!I hope we can play the GAME again!</td>
-</tr>
-<tr>
-<td class="nowrap"><strong>【10分版】リバーシ</strong></td>
-<td class="nowrap">2026/11/18(水) 20:30-20:40</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">SHIANEN BAR</td>
-<td class="center">1</td>
-<td class="comment">Good day! That was a super fun GAME! You did pretty well. You were able to express yourself. I hope we can play the GAME again! Take care!</td>
-</tr>
-<tr>
-<td class="nowrap"><strong>【10分版】リバーシ</strong></td>
-<td class="nowrap">2026/11/17(火) 17:30-17:40</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">DAPHNE ESM</td>
-<td class="center">0</td>
-<td class="comment">Good day! That was a super fun GAME! You did pretty well. You were able to express yourself. I hope we can play the GAME again! Take care!</td>
-</tr>
-<tr>
-<td class="nowrap"><strong>【10分版】神経衰弱</strong></td>
-<td class="nowrap">2026/11/18(水) 19:00-19:10</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">JANIELA MAR</td>
-<td class="center">0</td>
-<td class="comment">Hello. I felt sorry because we weren’t able to play the game today due to some reasons. I hope to see you next time!</td>
-</tr>
-<tr>
-<td class="nowrap"><strong>【10分版】神経衰弱-英検5級重要単語版</strong></td>
-<td class="nowrap">2026/11/20(金) 20:30-20:40</td>
-<td class="nowrap"><span class="badge badge-absent">欠席</span></td>
-<td class="teacher">VIRGINIA BAR</td>
-<td class="center">0</td>
-<td class="comment">Good day! We weren't able to proceed with the lesson today because you were absent. Hopefully, everything is okay. Have a nice day! See you next time.</td>
-</tr>
-</tbody>
-</table>
-</div>
-</section>
-<section class="section">
-<h2 class="section-title">【英会話】 <span class="pill">2件</span></h2>
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>コース名</th>
 <th>レッスン名</th>
-<th>予約日時</th>
 <th>出欠</th>
 <th>講師</th>
 <th>評価</th>
@@ -221,22 +210,119 @@
 </thead>
 <tbody>
 <tr>
-<td><strong>【知育で英語に親しむ】英語ドリルでおけいこ！ せいかつ 【10分版】</strong></td>
-<td class="nowrap">Lesson1-1 Lesson1-①</td>
-<td class="nowrap">2026/11/17(火) 06:30-06:40</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">IAN ESC</td>
-<td class="center">-----</td>
-<td class="comment">Hello. You participated well, and you tried your best to answer everything on your own. I noticed that you were quite hesitant every time you speak. Just try to be more confident next time.<br/>▼Please review and practice.<br/>■Pronunciation Corrections:<br/>1. straight /streɪt/<br/>2. curve /kɝːv/<br/>Looking forward to seeing you next time. Good day!</td>
+<td class="col-dt">-
+                                                    2026/11/22(日) 19:00-
+                                                    19:10</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson3 - How are you?</div>
+</td>
+<td class="col-att"><span class="badge badge-absent">欠席</span></td>
+<td class="col-teacher">CELERINA GEP</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Good day! We couldn't proceed with the lesson today because you were absent. Hopefully, everything is okay. Have a nice day! See you next time.</td>
 </tr>
 <tr>
-<td><strong>【フレーズ】小学英会話 ①【10分版】</strong></td>
-<td class="nowrap">Lesson1 I am a student.</td>
-<td class="nowrap">2026/11/20(金) 17:15-17:25</td>
-<td class="nowrap"><span class="badge badge-attend">出席</span></td>
-<td class="teacher">KIZA GAU</td>
-<td class="center">-----</td>
-<td class="comment">Hello. You participated well, and you tried your best to answer everything on your own. I noticed that you were quite hesitant every time you made a sentence. Just try to be more confident next time.<br/>▼ Please review and practice.<br/><br/>■ New Sentences Learned:<br/>1. I am Dean. I am a pilot.<br/>2. I am Maho. I am a doctor.<br/>3. I am Ana. I am a singer.<br/><br/>Looking forward to seeing you next time. Good day!</td>
+<td class="col-dt">-
+                                                            2026/11/22(日) 20:45-
+                                                            20:55</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson3 - How are you?</div>
+</td>
+<td class="col-att"><span class="badge badge-attend">出席</span></td>
+<td class="col-teacher">ARLINDA BEL</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Hello. I felt really sorry because we weren’t able to have a class today due to some reasons. I hope to see you next time!</td>
+</tr>
+<tr>
+<td class="col-dt">-
+                                                            2026/11/23(月) 20:15-
+                                                            20:25</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson3 - How are you?</div>
+</td>
+<td class="col-att"><span class="badge badge-absent">欠席</span></td>
+<td class="col-teacher">SHANABEL GAD</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Good day! We weren't able to proceed with the lesson today because you were absent. Hopefully, everything is okay.
+Have a nice day! See you next time.</td>
+</tr>
+<tr>
+<td class="col-dt">-
+                                                            2026/11/24(火) 17:30-
+                                                            17:40</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson3 - How are you?</div>
+</td>
+<td class="col-att"><span class="badge badge-attend">出席</span></td>
+<td class="col-teacher">ANA MAY SOR</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Hello! Thank you for being so engaged in today's lesson. I enjoyed hearing your thoughts and seeing you participate in our activities. Your willingness to learn makes each class meaningful. Keep that positive attitude and continue doing your best. Great job today!</td>
+</tr>
+<tr>
+<td class="col-dt">-
+                                                    2026/11/25(水) 19:00-
+                                                    19:10</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson4 - This is my brother.</div>
+</td>
+<td class="col-att"><span class="badge badge-attend">出席</span></td>
+<td class="col-teacher">ABBY GAIL QUI</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Hello, Nozomi! You did an amazing job in class today! I was so proud to see how smart you are and how quickly you understood everything we practiced. You listened so carefully and gave your absolute best effort throughout our lesson. Keep up the wonderful work!</td>
+</tr>
+<tr>
+<td class="col-dt">-
+                                                    2026/11/26(木) 07:30-
+                                                    07:40</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson5 - Is this a library?</div>
+</td>
+<td class="col-att"><span class="badge badge-attend">出席</span></td>
+<td class="col-teacher">MARY MAY ROM</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Hello! Thank you so much for attending today's class! You did a great job reading the target sentences and identifying different places in the community. You were also very good at matching the words with their corresponding pictures, forming questions, and providing appropriate affirmative and negative answers. I appreciate how attentively you listened and correctly selected the sentences that matched the illustrations. Keep practicing your pronunciation and sentence construction to improve your English skills.
+Words to practice:
+1. hospital /ˈhɑspɪtəl/
+2. school /skul/
+3. park /pɑrk/
+I really enjoyed having you in class today. Keep up the good work, and I hope to see you again soon!</td>
+</tr>
+<tr>
+<td class="col-dt">-
+                                                    2026/11/27(金) 07:45-
+                                                    07:55</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson6 - Who is he?</div>
+</td>
+<td class="col-att"><span class="badge badge-attend">出席</span></td>
+<td class="col-teacher">MARY MAY ROM</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Hello! Thank you so much for joining today's class! You did very well in reading the sentences and identifying different family relationships. I was impressed by how accurately you matched the sentences with the corresponding pictures and selected the correct statements based on the family tree. You also demonstrated a good understanding of how to ask and answer questions about people using complete sentences. Keep practicing your pronunciation and sentence construction.
+Words to practice:
+1. uncle /ˈʌŋkəl/
+2. cousin /ˈkʌzən/
+3. doctor /ˈdɑːktər/
+I enjoyed having you in class today. Keep up the good work, and I hope to see you again soon!</td>
+</tr>
+<tr>
+<td class="col-dt">-
+                                                    2026/11/28(土) 15:00-
+                                                    15:10</td>
+<td class="col-course">
+<div class="course-sub">【フレーズ】小学英会話 ①【10分版】</div>
+<div class="lesson-title">Lesson7 - She is not a farmer.</div>
+</td>
+<td class="col-att"><span class="badge badge-attend">出席</span></td>
+<td class="col-teacher">CARMELA DAC</td>
+<td class="col-eval">-----</td>
+<td class="col-comment">Good day! You enthusiastically answered all the activities we had. You can use the phrases learned today in your daily conversations so that you won’t forget them. Thank you for coming to my class. It was fun teaching you. I am looking forward to seeing you next time. Have a great day!</td>
 </tr>
 </tbody>
 </table>
